@@ -1,0 +1,37 @@
+pkgbase = jaybird
+	pkgdesc = Virtual modular synthesizer with configurable module selection (Cardinal fork)
+	pkgver = 26.02
+	pkgrel = 1
+	url = https://github.com/rainey/JayBird
+	arch = x86_64
+	license = GPL-3.0-or-later
+	makedepends = cmake
+	makedepends = file
+	makedepends = git
+	makedepends = python-yaml
+	depends = alsa-lib
+	depends = carla
+	depends = dbus
+	depends = file
+	depends = fftw
+	depends = gcc-libs
+	depends = jansson
+	depends = libarchive
+	depends = libglvnd
+	depends = liblo
+	depends = libsamplerate
+	depends = libsndfile
+	depends = libx11
+	depends = libxext
+	depends = libxrandr
+	depends = libxcursor
+	depends = speexdsp
+	depends = jack
+	optdepends = python-kconfiglib: interactive module selection (make menuconfig)
+	provides = jaybird
+	conflicts = jaybird
+	options = !lto
+	source = jaybird::git+https://github.com/rainey/JayBird.git#tag=v26.02
+	sha256sums = SKIP
+
+pkgname = jaybird

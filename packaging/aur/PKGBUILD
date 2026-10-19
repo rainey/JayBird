@@ -1,0 +1,82 @@
+# Maintainer: rainey <rainey@noreply.github.com>
+
+pkgname=jaybird
+pkgver=26.02
+pkgrel=1
+pkgdesc="Virtual modular synthesizer with configurable module selection (Cardinal fork)"
+arch=(x86_64)
+url="https://github.com/rainey/JayBird"
+license=(GPL-3.0-or-later)
+# Module selection: a profile name from kconfig/configs/ (default, test),
+# or a path to a .config file. Override: _jaybird_config=test makepkg
+_jaybird_config="${_jaybird_config:-default}"
+depends=(
+  alsa-lib
+  carla
+  dbus
+  file
+  fftw
+  gcc-libs
+  jansson
+  libarchive
+  libglvnd
+  liblo
+  libsamplerate
+  libsndfile
+  libx11
+  libxext
+  libxrandr
+  libxcursor
+  speexdsp
+  jack
+)
+makedepends=(
+  cmake
+  file
+  git
+  python-yaml
+)
+optdepends=(
+  'python-kconfiglib: interactive module selection (make menuconfig)'
+)
+provides=(jaybird)
+conflicts=(jaybird)
+source=("$pkgname::git+https://github.com/rainey/JayBird.git#tag=v$pkgver")
+sha256sums=('SKIP')
+options=(!lto)
+
+prepare() {
+  cd "$pkgname"
+  git submodule update --init --recursive --depth 1
+
+  # Install an external .config as a profile named after its file stem.
+  if [[ -f "$_jaybird_config" ]]; then
+    install -Dm644 "$_jaybird_config" \
+      "kconfig/configs/aur-$(basename "${_jaybird_config%.config}").config"
+    export _jaybird_config="aur-$(basename "${_jaybird_config%.config}")"
+  fi
+}
+
+build() {
+  export CONFIG="$_jaybird_config"
+  # NOTE: PREFIX must be set at build time, not only install time
+  make SYSDEPS=true PREFIX=/usr all
+}
+
+check() {
+  cd "$pkgname"
+  # TTL generation instantiates every registered plugin; a selection that
+  # breaks registration fails here.
+  make SYSDEPS=true PREFIX=/usr gen
+}
+
+package() {
+  cd "$pkgname"
+  make SYSDEPS=true PREFIX=/usr DESTDIR="$pkgdir" install
+
+  # CardinalNative is a developer test tool (per upstream packaging)
+  rm -f "$pkgdir/usr/bin/CardinalNative"
+
+  install -Dm644 README.md -t "$pkgdir/usr/share/doc/jaybird/"
+  install -Dm644 docs/FORK-NOTES.md -t "$pkgdir/usr/share/doc/jaybird/"
+}

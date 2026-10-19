@@ -492,6 +492,22 @@ tarball+deps: download
 	rm -f ../cardinal+deps-$(VERSION).tar.xz
 	tar -c --lzma $(TAR_ARGS) -f ../cardinal+deps-$(VERSION).tar.xz .
 
+# JayBird release tarball (source + submodule contents + Rack dep sources).
+# Run from a pristine checkout: make jaybird-tarball
+JAYBIRD_TAR_ARGS = $(TAR_ARGS) \
+	--exclude="plugins/plugins-jaybird.cpp" \
+	--exclude="kconfig/gen" \
+	--transform='s,^\.\.,-.-.,' \
+	--transform='s,^\.,jaybird-$(VERSION),' \
+	--transform='s,^-\.-\.,..,' \
+
+jaybird-tarball:
+	$(MAKE) clean -C deps
+	$(MAKE) download -C deps
+	mkdir -p dist
+	rm -f dist/jaybird+deps-$(VERSION).tar.xz
+	tar -c --lzma $(JAYBIRD_TAR_ARGS) -f dist/jaybird+deps-$(VERSION).tar.xz .
+
 version:
 	@echo $(VERSION)
 
