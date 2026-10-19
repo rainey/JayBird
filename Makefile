@@ -494,12 +494,16 @@ tarball+deps: download
 
 # JayBird release tarball (source + submodule contents + Rack dep sources).
 # Run from a pristine checkout: make jaybird-tarball
-JAYBIRD_TAR_ARGS = $(TAR_ARGS) \
-	--exclude="plugins/plugins-jaybird.cpp" \
-	--exclude="kconfig/gen" \
+# Our transforms precede TAR_ARGS' own so the renamed root wins.
+JAYBIRD_TAR_ARGS = \
 	--transform='s,^\.\.,-.-.,' \
 	--transform='s,^\.,jaybird-$(VERSION),' \
 	--transform='s,^-\.-\.,..,' \
+	--exclude="plugins/plugins-jaybird.cpp" \
+	--exclude="kconfig/gen" \
+	--exclude="dist" \
+	--exclude="result" \
+	$(TAR_ARGS)
 
 jaybird-tarball:
 	$(MAKE) clean -C deps
