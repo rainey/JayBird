@@ -38,15 +38,15 @@
 #define CARDINAL_NUM_PARAMETERS    CARDINAL_LOADER_PARAMS
 
 #define DISTRHO_PLUGIN_BRAND   "DISTRHO"
-#define DISTRHO_PLUGIN_URI     "https://distrho.kx.studio/plugins/cardinal#loader"
-#define DISTRHO_PLUGIN_CLAP_ID "studio.kx.distrho.cardinal#loader"
+#define DISTRHO_PLUGIN_URI     "https://github.com/rainey/JayBird/plugins/jaybird#loader"
+#define DISTRHO_PLUGIN_CLAP_ID "com.github.rainey.jaybird#loader"
 
 #define DISTRHO_PLUGIN_AU_TYPE   aumf
 #define DISTRHO_PLUGIN_BRAND_ID  Dstr
-#define DISTRHO_PLUGIN_UNIQUE_ID DcnC
+#define DISTRHO_PLUGIN_UNIQUE_ID JyBl
 
-#define DISTRHO_PLUGIN_NAME  "Cardinal Loader"
-#define DISTRHO_PLUGIN_LABEL "CardinalLoader"
+#define DISTRHO_PLUGIN_NAME  "JayBird Loader"
+#define DISTRHO_PLUGIN_LABEL "JayBirdLoader"
 
 #define DISTRHO_PLUGIN_HAS_UI             0
 #define DISTRHO_PLUGIN_WANT_DIRECT_ACCESS 0

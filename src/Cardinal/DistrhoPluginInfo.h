@@ -30,14 +30,14 @@
 #define CARDINAL_NUM_PARAMETERS    24
 
 #define DISTRHO_PLUGIN_BRAND   "DISTRHO"
-#define DISTRHO_PLUGIN_NAME    "Cardinal"
-#define DISTRHO_PLUGIN_LABEL   "Cardinal"
-#define DISTRHO_PLUGIN_URI     "https://distrho.kx.studio/plugins/cardinal"
-#define DISTRHO_PLUGIN_CLAP_ID "studio.kx.distrho.cardinal"
+#define DISTRHO_PLUGIN_NAME    "JayBird"
+#define DISTRHO_PLUGIN_LABEL   "JayBird"
+#define DISTRHO_PLUGIN_URI     "https://github.com/rainey/JayBird/plugins/jaybird"
+#define DISTRHO_PLUGIN_CLAP_ID "com.github.rainey.jaybird"
 
 #define DISTRHO_PLUGIN_AU_TYPE   aumf
 #define DISTRHO_PLUGIN_BRAND_ID  Dstr
-#define DISTRHO_PLUGIN_UNIQUE_ID DcnM
+#define DISTRHO_PLUGIN_UNIQUE_ID JyBd
 #define DISTRHO_PLUGIN_EXTRA_IO  { CARDINAL_NUM_AUDIO_INPUTS, CARDINAL_NUM_AUDIO_OUTPUTS }, { 2, 2 }
 
 #ifdef HEADLESS

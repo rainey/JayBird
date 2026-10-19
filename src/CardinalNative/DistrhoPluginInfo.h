@@ -30,14 +30,14 @@
 #define CARDINAL_NUM_PARAMETERS    24
 
 #define DISTRHO_PLUGIN_BRAND "DISTRHO"
-#define DISTRHO_PLUGIN_URI   "https://distrho.kx.studio/plugins/cardinal"
+#define DISTRHO_PLUGIN_URI   "https://github.com/rainey/JayBird/plugins/jaybird"
 
 #if defined(DISTRHO_OS_WASM) && defined(STATIC_BUILD)
-# define DISTRHO_PLUGIN_NAME  "Mini Cardinal"
-# define DISTRHO_PLUGIN_LABEL "MiniCardinal"
+# define DISTRHO_PLUGIN_NAME  "Mini JayBird"
+# define DISTRHO_PLUGIN_LABEL "MiniJayBird"
 #else
-# define DISTRHO_PLUGIN_NAME  "Cardinal"
-# define DISTRHO_PLUGIN_LABEL "Cardinal"
+# define DISTRHO_PLUGIN_NAME  "JayBird"
+# define DISTRHO_PLUGIN_LABEL "JayBird"
 #endif
 
 #ifdef HEADLESS

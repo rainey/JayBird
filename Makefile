@@ -29,6 +29,28 @@ PREFIX  ?= /usr/local
 DESTDIR ?=
 
 # ---------------------------------------------------------------------------------------------------------------------
+# JayBird module selection
+
+# Module selection profile: make CONFIG=test menuconfig / make CONFIG=test
+CONFIG ?= default
+KCONFIG_CONFIG := kconfig/configs/$(CONFIG).config
+
+# Generate build inputs from the selected config (build-all if absent).
+jaybird-gen:
+	python3 utils/jaybird/gen.py "$(KCONFIG_CONFIG)"
+
+# Interactive module selection (kconfiglib menuconfig)
+menuconfig:
+	KCONFIG_CONFIG=$(CURDIR)/$(KCONFIG_CONFIG) srctree=$(CURDIR)/kconfig \
+	python3 kconfig/menuconfig.py Kconfig
+
+# Pin the nix flake source to HEAD (run after committing; commit the result).
+nix-update-rev:
+	git rev-parse HEAD > nix/source-rev
+	@echo "nix/source-rev updated — commit it, then: nix build .#jaybird"
+
+
+# ---------------------------------------------------------------------------------------------------------------------
 # Carla config
 
 CARLA_EXTRA_ARGS = \
@@ -199,6 +221,11 @@ endif
 
 plugins: deps
 	$(MAKE) all -C plugins
+
+# regenerate selection inputs before plugins when a config is in use
+ifneq ($(wildcard $(KCONFIG_CONFIG)),)
+plugins: jaybird-gen
+endif
 
 resources:
 	$(MAKE) resources -C plugins
@@ -470,4 +497,4 @@ version:
 
 # --------------------------------------------------------------
 
-.PHONY: carla deps plugins
+.PHONY: carla deps plugins jaybird-gen menuconfig

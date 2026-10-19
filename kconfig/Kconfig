@@ -1,0 +1,50 @@
+# JayBird module selection — top level.
+# Regenerate plugin/module entries via `make jaybird-gen`.
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+mainmenu "JayBird module selection"
+
+# ------------------------------------------------------------------
+# Licensing policy switches
+#
+# These control which plugins are *available* for selection. A plugin
+# whose licenses do not pass the current policy is hidden from the
+# menu entirely.
+
+config ALLOW_GPL3_ONLY
+	bool "Include plugins licensed GPL-3.0-only"
+	default y
+	help
+	  Cardinal upstream requires GPL-3.0-or-later for all included
+	  plugins. That is project policy, not a legal necessity: the
+	  combined binary must be GPLv3+, which GPL-3.0-only code
+	  satisfies. Disable this to exclude GPL-3.0-only plugins
+	  (relevant for future module additions).
+
+config ALLOW_NC_ARTWORK
+	bool "Include plugins with NonCommercial or custom artwork licenses"
+	default y
+	help
+	  Panel artwork licenses (CC-BY-NC*, CC-NC-ND, and "custom with
+	  permission" grants) restrict commercial *distribution* of
+	  compiled binaries. Source-only use is unaffected. Disable this
+	  if you plan to distribute binaries commercially.
+
+	  Note: "Custom" artwork permissions were granted to Cardinal
+	  specifically and do not automatically transfer to JayBird;
+	  check docs/LICENSE-PERMISSIONS.md before distributing binaries.
+
+config STRICT_NO_PHONE_HOME
+	bool "Exclude plugins with known online access"
+	default y
+	help
+	  Keep online/phone-home behavior out of the build, matching
+	  upstream Cardinal policy. Plugins flagged phone_home in
+	  kconfig/manifest.yaml are unavailable while this is set.
+
+# ------------------------------------------------------------------
+# Plugin and module selection
+
+menu "Plugins and modules"
+source "Kconfig.gen"
+endmenu

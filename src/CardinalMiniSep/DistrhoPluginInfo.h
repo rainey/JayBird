@@ -30,10 +30,10 @@
 #define CARDINAL_NUM_PARAMETERS    24
 
 #define DISTRHO_PLUGIN_BRAND   "DISTRHO"
-#define DISTRHO_PLUGIN_URI     "https://distrho.kx.studio/plugins/cardinal#mini"
+#define DISTRHO_PLUGIN_URI     "https://github.com/rainey/JayBird/plugins/jaybird#mini"
 
-#define DISTRHO_PLUGIN_NAME  "Cardinal Mini"
-#define DISTRHO_PLUGIN_LABEL "CardinalMini"
+#define DISTRHO_PLUGIN_NAME  "JayBird Mini"
+#define DISTRHO_PLUGIN_LABEL "JayBirdMini"
 
 #define DISTRHO_PLUGIN_HAS_UI             1
 #define DISTRHO_PLUGIN_WANT_DIRECT_ACCESS 0

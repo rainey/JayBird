@@ -45,10 +45,10 @@
 	url = https://github.com/CardinalModules/cf.git
 [submodule "plugins/MindMeldModular"]
 	path = plugins/MindMeldModular
-	url = https://github.com/MarcBoule/MindMeldModular.git
+	url = https://github.com/CardinalModules/MindMeldModular.git
 [submodule "plugins/ValleyAudio"]
 	path = plugins/ValleyAudio
-	url = https://github.com/ValleyAudio/ValleyRackFree.git
+	url = https://github.com/CardinalModules/ValleyRackFree.git
 [submodule "plugins/WSTD-Drums"]
 	path = plugins/WSTD-Drums
 	url = https://github.com/Wasted-Audio/WSTD-Drums.git
@@ -223,7 +223,7 @@
 	url = https://github.com/stoermelder/vcvrack-packone.git
 [submodule "plugins/surgext"]
 	path = plugins/surgext
-	url = https://github.com/surge-synthesizer/surge-rack.git
+	url = https://github.com/CardinalModules/surge-rack.git
 [submodule "plugins/Sapphire"]
 	path = plugins/Sapphire
 	url = https://github.com/cosinekitty/sapphire.git
@@ -244,13 +244,13 @@
 	url = https://github.com/codygeary/CVfunk-Modules.git
 [submodule "plugins/StarlingVia"]
 	path = plugins/StarlingVia
-	url = https://github.com/starlingcode/Via-for-Rack.git
+	url = https://github.com/CardinalModules/Via-for-Rack.git
 [submodule "plugins/Biset"]
 	path = plugins/Biset
-	url = https://github.com/gibbonjoyeux/VCV-Biset.git
+	url = https://github.com/CardinalModules/VCV-Biset.git
 [submodule "plugins/PdArray"]
 	path = plugins/PdArray
-	url = https://github.com/mgunyho/PdArray.git
+	url = https://github.com/CardinalModules/PdArray.git
 [submodule "deps/JUCE"]
 	path = deps/JUCE
 	url = https://github.com/CardinalModules/JUCE.git

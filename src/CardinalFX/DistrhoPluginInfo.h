@@ -30,15 +30,15 @@
 #define CARDINAL_NUM_PARAMETERS    24
 
 #define DISTRHO_PLUGIN_BRAND   "DISTRHO"
-#define DISTRHO_PLUGIN_URI     "https://distrho.kx.studio/plugins/cardinal#fx"
-#define DISTRHO_PLUGIN_CLAP_ID "studio.kx.distrho.cardinal#fx"
+#define DISTRHO_PLUGIN_URI     "https://github.com/rainey/JayBird/plugins/jaybird#fx"
+#define DISTRHO_PLUGIN_CLAP_ID "com.github.rainey.jaybird#fx"
 
 #define DISTRHO_PLUGIN_AU_TYPE   aumf
 #define DISTRHO_PLUGIN_BRAND_ID  Dstr
-#define DISTRHO_PLUGIN_UNIQUE_ID DcnF
+#define DISTRHO_PLUGIN_UNIQUE_ID JyBf
 
-#define DISTRHO_PLUGIN_NAME  "Cardinal FX"
-#define DISTRHO_PLUGIN_LABEL "CardinalFX"
+#define DISTRHO_PLUGIN_NAME  "JayBird FX"
+#define DISTRHO_PLUGIN_LABEL "JayBirdFX"
 
 #ifdef HEADLESS
 #define DISTRHO_PLUGIN_HAS_UI             0

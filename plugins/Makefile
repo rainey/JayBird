@@ -220,6 +220,12 @@ DRWAV += drwav_write_raw
 PLUGIN_FILES = plugins.cpp
 MINIPLUGIN_FILES = plugins-mini.cpp
 
+# When generated, plugins-jaybird.cpp replaces upstream plugins.cpp as the
+# registration file list for the main/FX/Synth/Native archives (not Mini).
+ifneq ($(wildcard plugins-jaybird.cpp),)
+PLUGIN_FILES := plugins-jaybird.cpp $(filter-out plugins.cpp,$(PLUGIN_FILES))
+endif
+
 # --------------------------------------------------------------
 # Cardinal (built-in)
 
@@ -2900,5 +2906,12 @@ $(BUILD_DIR)/ZZC/%.cpp.o: ZZC/%.cpp
 # --------------------------------------------------------------
 
 -include $(PLUGIN_OBJS:%.o=%.d)
+
+# --------------------------------------------------------------
+
+$(BUILD_DIR)/plugins-jaybird.cpp.o: plugins-jaybird.cpp
+	-@mkdir -p "$(shell dirname $(BUILD_DIR)/$<)"
+	@echo "Compiling $<"
+	$(SILENT)$(CXX) $< $(BUILD_CXX_FLAGS) -c -o $@
 
 # --------------------------------------------------------------
