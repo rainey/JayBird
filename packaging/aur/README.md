@@ -18,6 +18,7 @@ to upstream behavior). Select another profile at build time:
 
 ```
 _jaybird_config=test makepkg          # profile from kconfig/configs/
+_jaybird_config=mini makepkg          # mirror of upstream's CardinalMini selection
 _jaybird_config=/path/to/my.config makepkg   # external config file
 ```
 
@@ -26,6 +27,10 @@ so the standard `make CONFIG=<name>` machinery (see docs/FORK-NOTES.md)
 picks it up. `make gen` in `check()` runs TTL generation, which
 instantiates every registered plugin — a selection that breaks
 registration fails the package build.
+
+`CONFIG` governs the main/FX/Synth/Native/Loader archives; the shipped
+`CardinalMini` bundle is upstream's fixed `plugins-mini.cpp` set and is
+not affected by the profile.
 
 ## Layout
 

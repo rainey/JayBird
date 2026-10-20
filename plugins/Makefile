@@ -226,6 +226,11 @@ ifneq ($(wildcard plugins-jaybird.cpp),)
 PLUGIN_FILES := plugins-jaybird.cpp $(filter-out plugins.cpp,$(PLUGIN_FILES))
 endif
 
+# Deselected plugins (from kconfig): drop their sources and shipped manifests.
+ifneq ($(wildcard plugins-jaybird.mk),)
+include plugins-jaybird.mk
+endif
+
 # --------------------------------------------------------------
 # Cardinal (built-in)
 
@@ -1462,7 +1467,7 @@ clean:
 
 # --------------------------------------------------------------
 
-PLUGIN_LIST = $(subst /plugin.json,,$(wildcard */plugin.json))
+PLUGIN_LIST = $(filter-out $(JAYBIRD_DISABLED_PLUGINS),$(subst /plugin.json,,$(wildcard */plugin.json)))
 
 UNWANTED_FILES  = HetrickCV/res/illustrator - deprecated/MyModule.svg
 UNWANTED_FILES += $(wildcard "HetrickCV/res/affinity redo/*")
@@ -2081,6 +2086,14 @@ endif
 
 # --------------------------------------------------------------
 # Build commands
+
+ifdef JAYBIRD_DISABLED_PATTERNS
+PLUGIN_FILES    := $(filter-out $(JAYBIRD_DISABLED_PATTERNS),$(PLUGIN_FILES))
+PLUGIN_BINARIES := $(filter-out $(JAYBIRD_DISABLED_PATTERNS),$(PLUGIN_BINARIES))
+endif
+
+# re-add dependency sources needed by always-compiled helpers
+PLUGIN_FILES += $(filter-out $(PLUGIN_FILES),$(JAYBIRD_KEEP_SOURCES))
 
 PLUGIN_OBJS  = $(PLUGIN_FILES:%=$(BUILD_DIR)/%.o)
 PLUGIN_OBJS += $(PLUGIN_BINARIES:%=$(BUILD_DIR)/%.bin.o)

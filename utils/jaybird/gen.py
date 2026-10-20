@@ -25,8 +25,19 @@ import sys
 
 REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from licensing import detect_code_license  # noqa: E402
+
 # Plugins whose module collection must always be registered (host plumbing).
 ALWAYS_ON = {"Cardinal", "Fundamental"}
+
+# updateStaticPluginsDarkMode() blocks and the plugin each one drives.
+DARKMODE_PLUGINS = {
+    "bogaudio": "BogaudioModules",
+    "meander": "Meander",
+    "glue the giant": "GlueTheGiant",
+    "surgext": "surgext",
+}
 
 # Dead registration blocks (commented out upstream) — never selectable.
 # ParableInstruments: shares ArableInstruments sources with -DPARASITES
@@ -36,6 +47,8 @@ KNOWN_UNSELECTABLE = {"ZamAudio", "ParableInstruments"}
 SPL_RE = re.compile(r'const StaticPluginLoader spl\(p, "([^"]+)"\);')
 ADDMODEL_RE = re.compile(r'^\s*p->addModel\(([\w:]+)\);')
 REMMODULE_RE = re.compile(r'spl\.removeModule\("([^"]+)"\)')
+INITFUNC_RE = re.compile(r'^static void initStatic__(\w+)\(\)')
+DISPATCH_RE = re.compile(r'^\s*initStatic__(\w+)\(\);')
 
 # `Model* name = createModel<..>("Slug")` — tolerates namespace-qualified
 # (`bogaudio::createModel`), wrapper functions (`createSapphireModel`),
@@ -211,17 +224,22 @@ def parse_plugins_cpp():
         lines = f.read().splitlines()
 
     blocks, cur = [], None
+    pending_func = None
     for i, line in enumerate(lines):
+        f = INITFUNC_RE.match(line)
+        if f:
+            pending_func = f.group(1)
+            if cur is not None:
+                cur["end"] = i - 1
+                cur = None
+            continue
         m = SPL_RE.search(line)
         if m:
-            cur = {"slug": m.group(1), "spl_line": i, "adds": [], "end": i}
+            cur = {"slug": m.group(1), "spl_line": i, "adds": [], "end": i,
+                   "func": pending_func}
             blocks.append(cur)
             continue
         if cur is None:
-            continue
-        if re.match(r'static void initStatic__', line):
-            cur["end"] = i - 1
-            cur = None
             continue
         a = ADDMODEL_RE.match(line)
         if a:
@@ -229,6 +247,56 @@ def parse_plugins_cpp():
     if cur is not None:
         cur["end"] = len(lines) - 1
     return lines, blocks
+
+
+def parse_functions(lines):
+    """Map each `static void initStatic__X()` to its [start, end] line range."""
+    bounds = [(i, m.group(1))
+              for i, line in enumerate(lines)
+              if (m := INITFUNC_RE.match(line))]
+    end_of_funcs = next((i for i, line in enumerate(lines)
+                         if re.match(r'^void initStaticPlugins\(\)', line)),
+                        len(lines))
+    ranges = {}
+    for idx, (start, name) in enumerate(bounds):
+        stop = bounds[idx + 1][0] if idx + 1 < len(bounds) else end_of_funcs
+        ranges[name] = (start, stop - 1)
+    return ranges
+
+
+def parse_dispatch(lines):
+    """Map each dispatched `initStatic__X()` to its line index."""
+    return {m.group(1): i for i, line in enumerate(lines)
+            if (m := DISPATCH_RE.match(line))}
+
+
+def parse_darkmode(lines):
+    """Return [(start, end, label)] for labelled blocks in the dark-mode hook."""
+    start = next((i for i, line in enumerate(lines)
+                  if re.match(r'^void updateStaticPluginsDarkMode\(\)', line)), None)
+    if start is None:
+        return []
+    label_re = re.compile(r'^\s*//\s*(.+?)\s*$')
+    blocks = []
+    i = start + 1
+    while i < len(lines):
+        m = label_re.match(lines[i])
+        if m:
+            j = i + 1
+            while j < len(lines) and lines[j].strip() == "":
+                j += 1
+            if j < len(lines) and lines[j].strip() == "{":
+                depth, k = 0, j
+                while k < len(lines):
+                    depth += lines[k].count("{") - lines[k].count("}")
+                    if depth == 0:
+                        blocks.append((i, k, m.group(1)))
+                        break
+                    k += 1
+                i = k + 1
+                continue
+        i += 1
+    return blocks
 
 
 def kconfig_symbol(s):
@@ -249,8 +317,11 @@ def generate_kconfig_gen(manifest, plugins, blocks_by_slug, model_slugs):
         block = blocks_by_slug.get(spl_slug)
         m = manifest.get("plugins/" + path, {})
         psym = "PLUG_" + kconfig_symbol(path.replace("plugins/", ""))
+        code_license, gpl3_only = plugin_licenses.get(path, (None, None))
+        if code_license is None:
+            warn(f"{path}: code license unclassified; not filterable")
         deps = []
-        if m.get("gpl3_only") is True:
+        if gpl3_only is True:
             deps.append("ALLOW_GPL3_ONLY")
         art = m.get("artwork_license") or ""
         if "NC" in art or art == "Custom":
@@ -260,7 +331,7 @@ def generate_kconfig_gen(manifest, plugins, blocks_by_slug, model_slugs):
 
         out.append(f'menu "{spl_slug} ({path})"')
         if m:
-            out.append(f'\tcomment "code: {m.get("code_license")}  artwork: {art or "unlisted"}"')
+            out.append(f'\tcomment "code: {code_license or "unclassified"}  artwork: {art or "unlisted"}"')
         out.append(f"config {psym}")
         out.append(f'\tbool "{spl_slug}"')
         out.append("\tdefault y")
@@ -323,13 +394,20 @@ def load_selection(config_path):
 
 
 def generate_build_input(lines, blocks, plugins, sel):
-    """Transform upstream plugins.cpp per selection. Returns new source text."""
-    # Single ordered pass: for each original line index, either drop it,
-    # keep it, or keep it with extra lines appended (removeModule calls).
-    keep = {}       # line_idx -> True
-    append = {}     # line_idx -> [extra lines]
+    """Transform upstream plugins.cpp per selection.
+
+    Returns (text, disabled_dirs): disabled_dirs is the set of fully
+    deselected plugin directories (used to filter sources/resources).
+    """
+    drop = set()     # line indices removed from the output
+    append = {}      # line_idx -> extra lines appended after it
+
+    func_ranges = parse_functions(lines)
+    dispatch = parse_dispatch(lines)
+    darkmode = parse_darkmode(lines)
 
     n_plugins_off = n_modules_off = 0
+    disabled = []
     for block in blocks:
         spl_slug = block["slug"]
         if spl_slug in ALWAYS_ON:
@@ -350,58 +428,67 @@ def generate_build_input(lines, blocks, plugins, sel):
                 if ms:
                     fsym = f"MOD_{psym[5:]}_{kconfig_symbol(ms)}"
                     mod_on[sym] = sel.get(fsym, True)
-        if plug_on:
-            to_remove = {sym for sym, on in mod_on.items() if not on}
-            if to_remove:
-                n_modules_off += len(to_remove)
-                slugs = []
-                for i, sym in block["adds"]:
-                    if sym in to_remove:
-                        keep[i] = False
-                        ms = model_map.get(sym.split("::")[-1])
-                        if ms:
-                            slugs.append(ms)
-                if slugs:
-                    append.setdefault(block["spl_line"], []).extend(
-                        f'    spl.removeModule("{s}");' for s in slugs)
 
-            # After a submodule pin bump the manifest (plugin.json) can list
-            # modules the registration never addModel()s; Rack's
-            # Plugin::modulesFromJson throws on unregistered manifest
-            # entries. Emit removeModule for every manifest slug not covered
-            # by a kept registration. Blocks with no direct addModel lines
-            # register via helper-init functions and are skipped.
-            if len(block["adds"]) > 0:
-                kept_slugs = set()
-                for i, sym in block["adds"]:
-                    if keep.get(i, True) is False:
-                        continue
+        if not plug_on:
+            # Fully deselected: remove the plugin's init function, dispatch
+            # call and dark-mode hook, so its sources can be dropped from the
+            # build entirely. Headers are kept: shared stub definitions in
+            # plugins.cpp still need the plugin types.
+            n_plugins_off += 1
+            disabled.append(path)
+            for i, _ in block["adds"]:
+                drop.add(i)
+            fn = block.get("func")
+            if fn in func_ranges:
+                s, e = func_ranges[fn]
+                drop.update(range(s, e + 1))
+            if fn in dispatch:
+                drop.add(dispatch[fn])
+            for s, e, label in darkmode:
+                if DARKMODE_PLUGINS.get(label) == path:
+                    drop.update(range(s, e + 1))
+            continue
+
+        # Plugin kept: module-level removal via removeModule.
+        to_remove = {sym for sym, on in mod_on.items() if not on}
+        if to_remove:
+            n_modules_off += len(to_remove)
+            slugs = []
+            for i, sym in block["adds"]:
+                if sym in to_remove:
+                    drop.add(i)
                     ms = model_map.get(sym.split("::")[-1])
                     if ms:
-                        kept_slugs.add(ms)
-                known_slugs = {ms for ms, _ in modules}
-                unregistered = known_slugs - kept_slugs
-                if unregistered:
-                    extra = [f'    spl.removeModule("{s}");'
-                             for s in sorted(unregistered)]
-                    existing = append.setdefault(block["spl_line"], [])
-                    existing.extend(x for x in extra if x not in existing)
-        else:
-            n_plugins_off += 1
-            for i, sym in block["adds"]:
-                keep[i] = False
-            # modulesFromJson requires a registered model per manifest
-            # entry, so strip every mapped module of a deselected plugin.
-            slugs = sorted({model_map[sym.split("::")[-1]]
-                            for _, sym in block["adds"]
-                            if sym.split("::")[-1] in model_map})
+                        slugs.append(ms)
             if slugs:
                 append.setdefault(block["spl_line"], []).extend(
                     f'    spl.removeModule("{s}");' for s in slugs)
 
+        # After a submodule pin bump the manifest (plugin.json) can list
+        # modules the registration never addModel()s; Rack's
+        # Plugin::modulesFromJson throws on unregistered manifest
+        # entries. Emit removeModule for every manifest slug not covered
+        # by a kept registration. Blocks with no direct addModel lines
+        # register via helper-init functions and are skipped.
+        if len(block["adds"]) > 0:
+            kept_slugs = set()
+            for i, sym in block["adds"]:
+                if i in drop:
+                    continue
+                ms = model_map.get(sym.split("::")[-1])
+                if ms:
+                    kept_slugs.add(ms)
+            known_slugs = {ms for ms, _ in modules}
+            unregistered = known_slugs - kept_slugs
+            if unregistered:
+                extra = [f'    spl.removeModule("{s}");'
+                         for s in sorted(unregistered)]
+                existing = append.setdefault(block["spl_line"], [])
+                existing.extend(x for x in extra if x not in existing)
+
     out = []
     for i, line in enumerate(lines):
-        if keep.get(i, True) is False:
+        if i in drop:
             continue
         out.append(line)
         if i in append:
@@ -413,11 +500,107 @@ def generate_build_input(lines, blocks, plugins, sel):
         f" * plugins deselected: {n_plugins_off}, modules deselected: {n_modules_off}",
         " */",
     ]
-    return "\n".join(header + out) + "\n"
+    return "\n".join(header + out) + "\n", disabled
 
 
 # Filled during main(): spl_slug path -> {ident: slug}
 plugins_model_slugs = {}
+# Filled during main(): dir -> (code_license, gpl3_only)
+plugin_licenses = {}
+
+
+def parse_miniplugin_list():
+    """Plugin dirs from the active MINIPLUGIN_LIST assignments in plugins/Makefile."""
+    out = []
+    pat = re.compile(r'^\s*MINIPLUGIN_LIST\s*\+?=\s*([^#]+)')
+    for line in open(os.path.join(REPO, "plugins", "Makefile")):
+        m = pat.match(line)
+        if m:
+            val = m.group(1).strip()
+            if val:
+                out.append(val)
+    return out
+
+
+def parse_keep_sources():
+    """Sources upstream Mini keeps despite their plugin not being in MINIPLUGIN_LIST.
+
+    Always-compiled helpers (e.g. surgext-helper) need symbols from a plugin
+    that is otherwise not built; these explicit paths must survive source
+    filtering. Derived from upstream's own curation.
+    """
+    mini = set(parse_miniplugin_list())
+    out = set()
+    pat = re.compile(r'^\s*MINIPLUGIN_FILES \+= (.*)')
+    for line in open(os.path.join(REPO, "plugins", "Makefile")):
+        m = pat.match(line)
+        if not m:
+            continue
+        for tok in m.group(1).split():
+            if tok.startswith("$("):
+                continue
+            if "/" in tok and tok.split("/")[0] not in mini:
+                out.add(tok)
+    return sorted(out)
+
+
+def parse_mini_removals():
+    """Map each plugin dir in plugins-mini.cpp to its removeModule slugs."""
+    path = os.path.join(REPO, "plugins", "plugins-mini.cpp")
+    blocks, cur = {}, None
+    for line in open(path):
+        m = SPL_RE.search(line)
+        if m:
+            cur = m.group(1)
+            blocks.setdefault(cur, set())
+            continue
+        if cur is not None:
+            rm = REMMODULE_RE.search(line)
+            if rm:
+                blocks[cur].add(rm.group(1))
+            if line.startswith("}"):
+                cur = None
+    return blocks
+
+
+def generate_mini_config(plugins, blocks_by_slug):
+    """Write kconfig/configs/mini.config mirroring upstream's plugins-mini.cpp.
+
+    The actual CardinalMini bundle is built by upstream; this profile only
+    reproduces its plugin/module selection for the main family.
+    """
+    mini = set(parse_miniplugin_list())
+    removed = parse_mini_removals()
+    out = [
+        "# GENERATED by utils/jaybird/gen.py — do not edit by hand.",
+        "# Mirrors upstream's plugins-mini.cpp selection for the main family.",
+        "# CardinalMini itself is unchanged by this profile.",
+        "",
+    ]
+    for dirn in sorted(plugins):
+        if dirn in ALWAYS_ON:
+            continue
+        psym = "PLUG_" + kconfig_symbol(dirn)
+        out.append(f"CONFIG_{psym}=y" if dirn in mini else f"# CONFIG_{psym} is not set")
+    out.append("")
+    for dirn in sorted(mini):
+        if dirn in ALWAYS_ON or dirn not in plugins:
+            continue
+        block = blocks_by_slug.get(dirn)
+        if not block:
+            continue
+        model_map = plugins_model_slugs.get(dirn, {})
+        dirsym = kconfig_symbol(dirn)
+        for _, sym in block["adds"]:
+            ms = model_map.get(sym.split("::")[-1])
+            if ms and ms in removed.get(dirn, set()):
+                out.append(f"# CONFIG_MOD_{dirsym}_{kconfig_symbol(ms)} is not set")
+
+    out_path = os.path.join(REPO, "kconfig", "configs", "mini.config")
+    with open(out_path, "w") as f:
+        f.write("\n".join(out) + "\n")
+    return out_path
+
 
 
 def main():
@@ -441,16 +624,28 @@ def main():
         slug, modules = info
         dirn = path[len("plugins/"):]
         plugins.setdefault(dirn, (dirn, slug, modules))
+        plugin_licenses[dirn] = detect_code_license(os.path.join(REPO, path))[:2]
         plugins_model_slugs[dirn] = scan_model_slugs(
             path, prefer={ms for ms, _ in modules})
 
     stats = generate_kconfig_gen(manifest, plugins, blocks_by_slug, plugins_model_slugs)
+    mini_path = generate_mini_config(plugins, blocks_by_slug)
     sel = load_selection(config_path)
-    text = generate_build_input(lines, blocks, plugins, sel)
+    text, disabled = generate_build_input(lines, blocks, plugins, sel)
 
     out_path = os.path.join(REPO, "plugins", "plugins-jaybird.cpp")
     with open(out_path, "w") as f:
         f.write(text)
+
+    # Make fragment: lets plugins/Makefile drop deselected plugins' sources
+    # and shipped manifests.
+    mk_path = os.path.join(REPO, "plugins", "plugins-jaybird.mk")
+    with open(mk_path, "w") as f:
+        f.write("# GENERATED by utils/jaybird/gen.py — do not edit by hand.\n")
+        f.write("JAYBIRD_DISABLED_PLUGINS := " + " ".join(sorted(disabled)) + "\n")
+        f.write("JAYBIRD_DISABLED_PATTERNS := "
+                + " ".join(f"{d}/%" for d in sorted(disabled)) + "\n")
+        f.write("JAYBIRD_KEEP_SOURCES := " + " ".join(parse_keep_sources()) + "\n")
 
     os.makedirs(os.path.join(REPO, "kconfig", "gen"), exist_ok=True)
     with open(os.path.join(REPO, "kconfig", "gen", "stamp"), "w") as f:
@@ -462,7 +657,10 @@ def main():
     n_mod = sum(len(b["adds"]) for b in selectable)
     print(f"jaybird: Kconfig.gen written ({len(stats)} selectable plugins, "
           f"{n_mod} registrable modules)")
-    print(f"jaybird: {out_path} written ({mode})")
+    print(f"jaybird: {out_path} written ({mode}, "
+          f"{len(disabled)} plugins disabled)")
+    print(f"jaybird: {mk_path} written")
+    print(f"jaybird: {mini_path} written")
 
     # Coverage guard: every spl block should be joinable to the manifest.
     missing = [b["slug"] for b in blocks

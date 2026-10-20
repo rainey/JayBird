@@ -2,816 +2,454 @@
 #
 # Fields:
 #   path:            submodule path (key; must cover every plugins/* submodule)
-#   slug:            plugin slug from plugin.json (reference)
-#   modules:         module count from plugin.json (reference, regenerated)
-#   code_license:    SPDX id of the plugin code
-#   gpl3_only:       true if GPL-3.0-only (needs ALLOW_GPL3_ONLY to include)
 #   artwork_license: SPDX id or description of panel art license (TODO: fill in)
 #   phone_home:      true if the module performs any online access (TODO: verify)
-#   license_source:  where code_license came from (auto-generated, keep for audit)
 #
-# Entries with null/TODO values or 'sniffed' license_source need review.
+# Code licenses are derived from plugin.json at generation time, not stored here.
+# Entries with null/TODO values need review.
 
 # plugins/21kHz
-#   !! gpl3_only unknown — REVIEW
 plugins/21kHz:
-  slug: '21kHz'
-  code_license: 'MIT'
-  gpl3_only: null
   artwork_license: null
   phone_home: null  # TODO
-  license_source: 'plugin.json'
 
 # plugins/8Mode
-#   !! gpl3_only unknown — REVIEW
 plugins/8Mode:
-  slug: '8Mode'
-  code_license: 'BSD-3-Clause'
-  gpl3_only: null
   artwork_license: null
   phone_home: null  # TODO
-  license_source: 'plugin.json'
 
 # plugins/AS
-#   !! gpl3_only unknown — REVIEW
 plugins/AS:
-  slug: 'AS'
-  code_license: 'MIT'
-  gpl3_only: null
   artwork_license: 'CC-BY-NC-ND-4.0'
   # per-file artwork exceptions listed in docs/LICENSES.md: 2
   phone_home: null  # TODO
-  license_source: 'plugin.json'
 
 # plugins/AaronStatic
-#   !! gpl3_only unknown — REVIEW
 plugins/AaronStatic:
-  slug: 'AaronStatic'
-  code_license: 'MIT'
-  gpl3_only: null
   artwork_license: 'MIT'
   # per-file artwork exceptions listed in docs/LICENSES.md: 1
   phone_home: null  # TODO
-  license_source: 'plugin.json'
 
 # plugins/Algoritmarte
 plugins/Algoritmarte:
-  slug: 'AlgoritmArte'
-  code_license: 'GPL-3.0-or-later'
-  gpl3_only: False
   artwork_license: 'GPL-3.0-or-later'
   # per-file artwork exceptions listed in docs/LICENSES.md: 1
   phone_home: null  # TODO
-  license_source: 'plugin.json'
 
 # plugins/AmalgamatedHarmonics
-#   !! gpl3_only unknown — REVIEW
 plugins/AmalgamatedHarmonics:
-  slug: 'AmalgamatedHarmonics'
-  code_license: 'BSD-3-Clause'
-  gpl3_only: null
   artwork_license: 'BSD-3-Clause'
   # per-file artwork exceptions listed in docs/LICENSES.md: 2
   phone_home: null  # TODO
-  license_source: 'plugin.json'
 
 # plugins/AnimatedCircuits
 plugins/AnimatedCircuits:
-  slug: 'AnimatedCircuits'
-  code_license: 'GPL-3.0-or-later'
-  gpl3_only: False
   artwork_license: 'CC-BY-NC-SA-4.0'
   phone_home: null  # TODO
-  license_source: 'plugin.json'
 
 # plugins/ArableInstruments
 plugins/ArableInstruments:
-  slug: 'ArableInstruments'
-  code_license: 'GPL-3.0-or-later'
-  gpl3_only: False
   artwork_license: 'Custom'
   phone_home: null  # TODO
-  license_source: 'plugin.json'
 
 # plugins/AriaModules
 plugins/AriaModules:
-  slug: 'AriaSalvatrice'
-  code_license: 'GPL-3.0-or-later'
-  gpl3_only: False
   artwork_license: 'CC-BY-SA-4.0'
   # per-file artwork exceptions listed in docs/LICENSES.md: 6
   phone_home: null  # TODO
-  license_source: 'plugin.json'
 
 # plugins/AudibleInstruments
 plugins/AudibleInstruments:
-  slug: 'AudibleInstruments'
-  code_license: 'GPL-3.0-or-later'
-  gpl3_only: False
   artwork_license: 'Custom'
   phone_home: null  # TODO
-  license_source: 'plugin.json'
 
 # plugins/Autinn
 plugins/Autinn:
-  slug: 'Autinn'
-  code_license: 'GPL-3.0-or-later'
-  gpl3_only: False
   artwork_license: 'GPL-3.0-or-later'
   phone_home: null  # TODO
-  license_source: 'plugin.json'
 
 # plugins/Axioma
 plugins/Axioma:
-  slug: 'Axioma'
-  code_license: 'GPL-3.0-or-later'
-  gpl3_only: False
   artwork_license: 'GPL-3.0-or-later'
   phone_home: null  # TODO
-  license_source: 'plugin.json'
 
 # plugins/BaconPlugs
 plugins/BaconPlugs:
-  slug: 'BaconMusic'
-  code_license: 'GPL-3.0-or-later'
-  gpl3_only: False
   artwork_license: 'GPL-3.0-or-later'
   # per-file artwork exceptions listed in docs/LICENSES.md: 11
   phone_home: null  # TODO
-  license_source: 'plugin.json'
 
 # plugins/Befaco
 plugins/Befaco:
-  slug: 'Befaco'
-  code_license: 'GPL-3.0-or-later'
-  gpl3_only: False
   artwork_license: null
   # per-file artwork exceptions listed in docs/LICENSES.md: 3
   phone_home: null  # TODO
-  license_source: 'plugin.json'
 
 # plugins/Bidoo
 plugins/Bidoo:
-  slug: 'Bidoo'
-  code_license: 'GPL-3.0-or-later'
-  gpl3_only: False
   artwork_license: 'CC-BY-NC-ND-4.0'
   phone_home: null  # TODO
-  license_source: 'plugin.json'
 
 # plugins/Biset
 plugins/Biset:
-  slug: 'Biset'
-  code_license: 'GPL-3.0-or-later'
-  gpl3_only: False
   artwork_license: 'MIT'
   # per-file artwork exceptions listed in docs/LICENSES.md: 2
   phone_home: null  # TODO
-  license_source: 'plugin.json'
 
 # plugins/BogaudioModules
 plugins/BogaudioModules:
-  slug: 'Bogaudio'
-  code_license: 'GPL-3.0-or-later'
-  gpl3_only: False
   artwork_license: 'CC-BY-SA-4.0'
   # per-file artwork exceptions listed in docs/LICENSES.md: 2
   phone_home: null  # TODO
-  license_source: 'plugin.json'
 
 # plugins/CVfunk
-#   !! gpl3_only unknown — REVIEW
 plugins/CVfunk:
-  slug: 'CVfunk'
-  code_license: 'MIT'
-  gpl3_only: null
   artwork_license: 'MIT'
   phone_home: null  # TODO
-  license_source: 'plugin.json'
 
 # plugins/CatroModulo
-#   !! gpl3_only unknown — REVIEW
 plugins/CatroModulo:
-  slug: 'CatroModulo'
-  code_license: 'BSD-3-Clause'
-  gpl3_only: null
   artwork_license: 'BSD-3-Clause'
   # per-file artwork exceptions listed in docs/LICENSES.md: 1
   phone_home: null  # TODO
-  license_source: 'plugin.json'
 
 # plugins/ChowDSP
 plugins/ChowDSP:
-  slug: 'ChowDSP'
-  code_license: 'GPL-3.0-or-later'
-  gpl3_only: False
   artwork_license: 'GPL-3.0-or-later'
   # per-file artwork exceptions listed in docs/LICENSES.md: 1
   phone_home: null  # TODO
-  license_source: 'plugin.json'
 
 # plugins/Computerscare
-#   !! gpl3_only unknown — REVIEW
 plugins/Computerscare:
-  slug: 'computerscare'
-  code_license: 'BSD-3-Clause'
-  gpl3_only: null
   artwork_license: 'BSD-3-Clause'
   # per-file artwork exceptions listed in docs/LICENSES.md: 2
   phone_home: null  # TODO
-  license_source: 'plugin.json'
 
 # plugins/DHE-Modules
-#   !! gpl3_only unknown — REVIEW
 plugins/DHE-Modules:
-  slug: 'DHE-Modules'
-  code_license: 'MIT'
-  gpl3_only: null
   artwork_license: 'MIT'
   phone_home: null  # TODO
-  license_source: 'plugin.json'
 
 # plugins/ESeries
 plugins/ESeries:
-  slug: 'ESeries'
-  code_license: 'GPL-3.0-or-later'
-  gpl3_only: False
   artwork_license: null
   phone_home: null  # TODO
-  license_source: 'plugin.json'
 
 # plugins/EnigmaCurry
 plugins/EnigmaCurry:
-  slug: 'EnigmaCurry'
-  code_license: 'GPL-3.0-or-later'
-  gpl3_only: False
   artwork_license: null
   # per-file artwork exceptions listed in docs/LICENSES.md: 4
   phone_home: null  # TODO
-  license_source: 'plugin.json'
 
 # plugins/ExpertSleepers-Encoders
-#   !! gpl3_only unknown — REVIEW
 plugins/ExpertSleepers-Encoders:
-  slug: 'ExpertSleepers-Encoders'
-  code_license: 'MIT'
-  gpl3_only: null
   artwork_license: 'MIT'
   phone_home: null  # TODO
-  license_source: 'plugin.json'
 
 # plugins/Extratone
 plugins/Extratone:
-  slug: 'Extratone'
-  code_license: 'GPL-3.0-or-later'
-  gpl3_only: False
   artwork_license: 'GPL-3.0-or-later'
   phone_home: null  # TODO
-  license_source: 'plugin.json'
 
 # plugins/FehlerFabrik
 plugins/FehlerFabrik:
-  slug: 'FehlerFabrik-Suite'
-  code_license: 'GPL-3.0-or-later'
-  gpl3_only: False
   artwork_license: 'GPL-3.0-or-later'
   phone_home: null  # TODO
-  license_source: 'plugin.json'
 
 # plugins/Fundamental
 plugins/Fundamental:
-  slug: 'Fundamental'
-  code_license: 'GPL-3.0-or-later'
-  gpl3_only: False
   artwork_license: 'GPL-3.0-or-later'
   phone_home: null  # TODO
-  license_source: 'plugin.json'
 
 # plugins/GlueTheGiant
 plugins/GlueTheGiant:
-  slug: 'GlueTheGiant'
-  code_license: 'GPL-3.0-or-later'
-  gpl3_only: False
   artwork_license: 'GPL-3.0-or-later'
   # per-file artwork exceptions listed in docs/LICENSES.md: 1
   phone_home: null  # TODO
-  license_source: 'plugin.json'
 
 # plugins/GoodSheperd
 plugins/GoodSheperd:
-  slug: 'GoodSheperd'
-  code_license: 'GPL-3.0-or-later'
-  gpl3_only: False
   artwork_license: 'GPL-3.0-or-later'
   phone_home: null  # TODO
-  license_source: 'plugin.json'
 
 # plugins/GrandeModular
 plugins/GrandeModular:
-  slug: 'GrandeModular'
-  code_license: 'GPL-3.0-or-later'
-  gpl3_only: False
   artwork_license: 'CC-BY-NC-ND-4.0'
   phone_home: null  # TODO
-  license_source: 'plugin.json'
 
 # plugins/HamptonHarmonics
-#   !! gpl3_only unknown — REVIEW
 plugins/HamptonHarmonics:
-  slug: 'HamptonHarmonics'
-  code_license: 'MIT'
-  gpl3_only: null
   artwork_license: 'MIT'
   # per-file artwork exceptions listed in docs/LICENSES.md: 1
   phone_home: null  # TODO
-  license_source: 'plugin.json'
 
 # plugins/HetrickCV
-#   !! gpl3_only unknown — REVIEW
 plugins/HetrickCV:
-  slug: 'HetrickCV'
-  code_license: 'CC0-1.0'
-  gpl3_only: null
   artwork_license: 'CC0-1.0'
   phone_home: null  # TODO
-  license_source: 'plugin.json'
 
 # plugins/ImpromptuModular
 plugins/ImpromptuModular:
-  slug: 'ImpromptuModular'
-  code_license: 'GPL-3.0-or-later'
-  gpl3_only: False
   artwork_license: 'CC-BY-NC-ND-4.0'
   # per-file artwork exceptions listed in docs/LICENSES.md: 1
   phone_home: null  # TODO
-  license_source: 'plugin.json'
 
 # plugins/JW-Modules
-#   !! gpl3_only unknown — REVIEW
 plugins/JW-Modules:
-  slug: 'JW-Modules'
-  code_license: 'BSD-3-Clause'
-  gpl3_only: null
   artwork_license: 'BSD-3-Clause'
   # per-file artwork exceptions listed in docs/LICENSES.md: 2
   phone_home: null  # TODO
-  license_source: 'plugin.json'
 
 # plugins/LifeFormModular
-#   !! gpl3_only unknown — REVIEW
 plugins/LifeFormModular:
-  slug: 'LifeFormModular'
-  code_license: 'MIT'
-  gpl3_only: null
   artwork_license: 'MIT'
   phone_home: null  # TODO
-  license_source: 'plugin.json'
 
 # plugins/LilacLoop
 plugins/LilacLoop:
-  slug: 'LilacLoop'
-  code_license: 'GPL-3.0-or-later'
-  gpl3_only: False
   artwork_license: 'GPL-3.0-or-later'
   phone_home: null  # TODO
-  license_source: 'plugin.json'
 
 # plugins/LittleUtils
-#   !! gpl3_only unknown — REVIEW
 plugins/LittleUtils:
-  slug: 'LittleUtils'
-  code_license: 'EUPL-1.2'
-  gpl3_only: null
   artwork_license: 'EUPL-1.2'
   # per-file artwork exceptions listed in docs/LICENSES.md: 3
   phone_home: null  # TODO
-  license_source: 'plugin.json'
 
 # plugins/LomasModules
 plugins/LomasModules:
-  slug: 'LomasModules'
-  code_license: 'GPL-3.0-or-later'
-  gpl3_only: False
   artwork_license: 'GPL-3.0-or-later'
   # per-file artwork exceptions listed in docs/LICENSES.md: 1
   phone_home: null  # TODO
-  license_source: 'plugin.json'
 
 # plugins/LyraeModules
 plugins/LyraeModules:
-  slug: 'LyraeModules'
-  code_license: 'GPL-3.0-or-later'
-  gpl3_only: False
   artwork_license: 'CC-BY-NC-SA-4.0'
   phone_home: null  # TODO
-  license_source: 'plugin.json'
 
 # plugins/ML_modules
-#   !! gpl3_only unknown — REVIEW
 plugins/ML_modules:
-  slug: 'ML_modules'
-  code_license: 'BSD-3-Clause'
-  gpl3_only: null
   artwork_license: 'BSD-3-Clause'
   # per-file artwork exceptions listed in docs/LICENSES.md: 2
   phone_home: null  # TODO
-  license_source: 'plugin.json'
 
 # plugins/MSM
-#   !! gpl3_only unknown — REVIEW
 plugins/MSM:
-  slug: 'MSM'
-  code_license: 'MIT'
-  gpl3_only: null
   artwork_license: 'MIT'
   # per-file artwork exceptions listed in docs/LICENSES.md: 3
   phone_home: null  # TODO
-  license_source: 'plugin.json'
 
 # plugins/MUS-X
 plugins/MUS-X:
-  slug: 'MUS-X'
-  code_license: 'GPL-3.0-or-later'
-  gpl3_only: False
   artwork_license: 'GPL-3.0-or-later'
   phone_home: null  # TODO
-  license_source: 'plugin.json'
 
 # plugins/Meander
 plugins/Meander:
-  slug: 'PS-PurrSoftware'
-  code_license: 'GPL-3.0-or-later'
-  gpl3_only: False
   artwork_license: 'GPL-3.0-or-later'
   # per-file artwork exceptions listed in docs/LICENSES.md: 3
   phone_home: null  # TODO
-  license_source: 'plugin.json'
 
 # plugins/MindMeldModular
 plugins/MindMeldModular:
-  slug: 'MindMeldModular'
-  code_license: 'GPL-3.0-or-later'
-  gpl3_only: False
   artwork_license: null
   phone_home: null  # TODO
-  license_source: 'plugin.json'
 
 # plugins/MockbaModular
-#   !! gpl3_only unknown — REVIEW
 plugins/MockbaModular:
-  slug: 'MockbaModular'
-  code_license: 'MIT'
-  gpl3_only: null
   artwork_license: 'MIT'
   phone_home: null  # TODO
-  license_source: 'plugin.json'
 
 # plugins/Mog
-#   !! gpl3_only unknown — REVIEW
 plugins/Mog:
-  slug: 'Mog'
-  code_license: 'CC0-1.0'
-  gpl3_only: null
   artwork_license: 'CC0-1.0'
   # per-file artwork exceptions listed in docs/LICENSES.md: 2
   phone_home: null  # TODO
-  license_source: 'plugin.json'
 
 # plugins/Orbits
 plugins/Orbits:
-  slug: 'RareBreeds_Orbits'
-  code_license: 'GPL-3.0-or-later'
-  gpl3_only: False
   artwork_license: 'CC-BY-NC-ND-4.0'
   # per-file artwork exceptions listed in docs/LICENSES.md: 1
   phone_home: null  # TODO
-  license_source: 'plugin.json'
 
 # plugins/PathSet
 plugins/PathSet:
-  slug: 'PathSet'
-  code_license: 'GPL-3.0-or-later'
-  gpl3_only: False
   artwork_license: 'GPL-3.0-or-later'
   phone_home: null  # TODO
-  license_source: 'plugin.json'
 
 # plugins/PdArray
-#   !! gpl3_only unknown — REVIEW
 plugins/PdArray:
-  slug: 'PdArray'
-  code_license: 'EUPL-1.2'
-  gpl3_only: null
   artwork_license: null
   # per-file artwork exceptions listed in docs/LICENSES.md: 3
   phone_home: null  # TODO
-  license_source: 'plugin.json'
 
 # plugins/PinkTrombone
 plugins/PinkTrombone:
-  slug: 'PinkTrombone'
-  code_license: 'GPL-3.0-or-later'
-  gpl3_only: False
   artwork_license: 'GPL-3.0-or-later'
   phone_home: null  # TODO
-  license_source: 'plugin.json'
 
 # plugins/Prism
-#   !! gpl3_only unknown — REVIEW
 plugins/Prism:
-  slug: 'Prism'
-  code_license: 'BSD-3-Clause'
-  gpl3_only: null
   artwork_license: 'CC-BY-SA-4.0'
   # per-file artwork exceptions listed in docs/LICENSES.md: 1
   phone_home: null  # TODO
-  license_source: 'plugin.json'
 
 # plugins/RebelTech
 plugins/RebelTech:
-  slug: 'RebelTech'
-  code_license: 'GPL-2.0-or-later'
-  gpl3_only: False
   artwork_license: 'CC-BY-NC-4.0'
   phone_home: null  # TODO
-  license_source: 'plugin.json'
 
 # plugins/Sapphire
 plugins/Sapphire:
-  slug: 'CosineKitty-Sapphire'
-  code_license: 'GPL-3.0-or-later'
-  gpl3_only: False
   artwork_license: 'GPL-3.0-or-later'
   phone_home: null  # TODO
-  license_source: 'plugin.json'
 
 # plugins/StarlingVia
-#   !! gpl3_only unknown — REVIEW
 plugins/StarlingVia:
-  slug: 'Starling_Via'
-  code_license: 'MIT'
-  gpl3_only: null
   artwork_license: 'MIT'
   phone_home: null  # TODO
-  license_source: 'plugin.json'
 
 # plugins/ValleyAudio
 plugins/ValleyAudio:
-  slug: 'Valley'
-  code_license: 'GPL-3.0-or-later'
-  gpl3_only: False
   artwork_license: 'GPL-3.0-or-later'
   # per-file artwork exceptions listed in docs/LICENSES.md: 3
   phone_home: null  # TODO
-  license_source: 'plugin.json'
 
 # plugins/Venom
 plugins/Venom:
-  slug: 'Venom'
-  code_license: 'GPL-3.0-or-later'
-  gpl3_only: False
   artwork_license: 'GPL-3.0-or-later'
   phone_home: null  # TODO
-  license_source: 'plugin.json'
 
 # plugins/WSTD-Drums
-#   !! gpl3_only unknown — REVIEW
 plugins/WSTD-Drums:
-  slug: 'WSTD-Drums'
-  code_license: 'CC0-1.0'
-  gpl3_only: null
   artwork_license: null
   phone_home: null  # TODO
-  license_source: 'plugin.json'
 
 # plugins/WhatTheRack
-#   !! gpl3_only unknown — REVIEW
 plugins/WhatTheRack:
-  slug: 'WhatTheRack'
-  code_license: 'WTFPL'
-  gpl3_only: null
   artwork_license: 'WTFPL'
   # per-file artwork exceptions listed in docs/LICENSES.md: 1
   phone_home: null  # TODO
-  license_source: 'plugin.json'
 
 # plugins/ZZC
 plugins/ZZC:
-  slug: 'ZZC'
-  code_license: 'GPL-3.0-or-later'
-  gpl3_only: False
   artwork_license: 'CC-BY-NC-SA-4.0'
   # per-file artwork exceptions listed in docs/LICENSES.md: 3
   phone_home: null  # TODO
-  license_source: 'plugin.json'
 
 # plugins/ZetaCarinaeModules
 plugins/ZetaCarinaeModules:
-  slug: 'ZetaCarinae'
-  code_license: 'GPL-3.0-or-later'
-  gpl3_only: False
   artwork_license: 'GPL-3.0-or-later'
   phone_home: null  # TODO
-  license_source: 'plugin.json'
 
 # plugins/admiral
-#   !! gpl3_only unknown — REVIEW
 plugins/admiral:
-  slug: 'Admiral'
-  code_license: 'MIT'
-  gpl3_only: null
   artwork_license: null
   phone_home: null  # TODO
-  license_source: 'plugin.json'
 
 # plugins/alefsbits
 plugins/alefsbits:
-  slug: 'alefsbits'
-  code_license: 'GPL-3.0-or-later'
-  gpl3_only: False
   artwork_license: 'GPL-3.0-or-later'
   phone_home: null  # TODO
-  license_source: 'plugin.json'
 
 # plugins/cf
-#   !! gpl3_only unknown — REVIEW
 plugins/cf:
-  slug: 'cf'
-  code_license: 'BSD-3-Clause'
-  gpl3_only: null
   artwork_license: 'BSD-3-Clause'
   # per-file artwork exceptions listed in docs/LICENSES.md: 3
   phone_home: null  # TODO
-  license_source: 'plugin.json'
 
 # plugins/dBiz
-#   !! gpl3_only unknown — REVIEW
 plugins/dBiz:
-  slug: 'dBiz'
-  code_license: 'BSD-3-Clause'
-  gpl3_only: null
   artwork_license: 'CC-BY-NC-ND-4.0'
   # per-file artwork exceptions listed in docs/LICENSES.md: 2
   phone_home: null  # TODO
-  license_source: 'plugin.json'
 
 # plugins/eightfold
 plugins/eightfold:
-  slug: 'eightfold'
-  code_license: 'GPL-3.0-or-later'
-  gpl3_only: False
   artwork_license: 'GPL-3.0-or-later'
   phone_home: null  # TODO
-  license_source: 'plugin.json'
 
 # plugins/forsitan-modulare
 plugins/forsitan-modulare:
-  slug: 'forsitan'
-  code_license: 'GPL-3.0-or-later'
-  gpl3_only: False
   artwork_license: 'GPL-3.0-or-later'
   phone_home: null  # TODO
-  license_source: 'plugin.json'
 
 # plugins/h4n4-modules
 plugins/h4n4-modules:
-  slug: 'h4n4-modules'
-  code_license: 'GPL-3.0-or-later'
-  gpl3_only: False
   artwork_license: 'GPL-3.0-or-later'
   phone_home: null  # TODO
-  license_source: 'plugin.json'
 
 # plugins/ihtsyn
 plugins/ihtsyn:
-  slug: 'ihtsyn'
-  code_license: 'GPL-3.0-or-later'
-  gpl3_only: False
   artwork_license: 'GPL-3.0-or-later'
   phone_home: null  # TODO
-  license_source: 'plugin.json'
 
 # plugins/kocmoc
 plugins/kocmoc:
-  slug: 'kocmoc'
-  code_license: 'GPL-3.0-or-later'
-  gpl3_only: False
   artwork_license: 'GPL-3.0-or-later'
   phone_home: null  # TODO
-  license_source: 'plugin.json'
 
 # plugins/mscHack
-#   !! gpl3_only unknown — REVIEW
 plugins/mscHack:
-  slug: 'mscHack'
-  code_license: 'BSD-3-Clause'
-  gpl3_only: null
   artwork_license: 'BSD-3-Clause'
   phone_home: null  # TODO
-  license_source: 'plugin.json'
 
 # plugins/myth-modules
 plugins/myth-modules:
-  slug: 'Myth'
-  code_license: 'GPL-3.0-or-later'
-  gpl3_only: False
   artwork_license: null
   phone_home: null  # TODO
-  license_source: 'plugin.json'
 
 # plugins/nonlinearcircuits
-#   !! gpl3_only unknown — REVIEW
 plugins/nonlinearcircuits:
-  slug: 'NonlinearCircuits'
-  code_license: 'CC0-1.0'
-  gpl3_only: null
   artwork_license: 'CC0-1.0'
   # per-file artwork exceptions listed in docs/LICENSES.md: 1
   phone_home: null  # TODO
-  license_source: 'plugin.json'
 
 # plugins/rackwindows
-#   !! gpl3_only unknown — REVIEW
 plugins/rackwindows:
-  slug: 'rackwindows'
-  code_license: 'MIT'
-  gpl3_only: null
   artwork_license: null
   phone_home: null  # TODO
-  license_source: 'plugin.json'
 
 # plugins/rcm-modules
 plugins/rcm-modules:
-  slug: 'rcm'
-  code_license: 'GPL-2.0-or-later'
-  gpl3_only: False
   artwork_license: null
   phone_home: null  # TODO
-  license_source: 'plugin.json'
 
 # plugins/repelzen
 plugins/repelzen:
-  slug: 'repelzen'
-  code_license: 'GPL-3.0-or-later'
-  gpl3_only: False
   artwork_license: 'CC-BY-SA-4.0'
   phone_home: null  # TODO
-  license_source: 'plugin.json'
 
 # plugins/sonusmodular
 plugins/sonusmodular:
-  slug: 'SonusModular'
-  code_license: 'GPL-3.0-or-later'
-  gpl3_only: False
   artwork_license: 'GPL-3.0-or-later'
   phone_home: null  # TODO
-  license_source: 'plugin.json'
 
 # plugins/stocaudio
 plugins/stocaudio:
-  slug: 'stocaudio'
-  code_license: 'GPL-3.0-or-later'
-  gpl3_only: False
   artwork_license: 'GPL-3.0-or-later'
   phone_home: null  # TODO
-  license_source: 'plugin.json'
 
 # plugins/stoermelder-packone
 plugins/stoermelder-packone:
-  slug: 'Stoermelder-P1'
-  code_license: 'GPL-3.0-or-later'
-  gpl3_only: False
   artwork_license: 'GPL-3.0-or-later'
   # per-file artwork exceptions listed in docs/LICENSES.md: 1
   phone_home: null  # TODO
-  license_source: 'plugin.json'
 
 # plugins/surgext
 plugins/surgext:
-  slug: 'SurgeXTRack'
-  code_license: 'GPL-3.0-or-later'
-  gpl3_only: False
   artwork_license: 'GPL-3.0-or-later'
   # per-file artwork exceptions listed in docs/LICENSES.md: 2
   phone_home: null  # TODO
-  license_source: 'plugin.json'
 
 # plugins/unless_modules
 plugins/unless_modules:
-  slug: 'unless_modules'
-  code_license: 'GPL-3.0-or-later'
-  gpl3_only: False
   artwork_license: 'CC-BY-NC-ND-4.0'
   # per-file artwork exceptions listed in docs/LICENSES.md: 2
   phone_home: null  # TODO
-  license_source: 'plugin.json'
 
 # plugins/voxglitch
 plugins/voxglitch:
-  slug: 'voxglitch'
-  code_license: 'GPL-3.0-or-later'
-  gpl3_only: False
   artwork_license: 'GPL-3.0-or-later'
   # per-file artwork exceptions listed in docs/LICENSES.md: 1
   phone_home: null  # TODO
-  license_source: 'plugin.json'

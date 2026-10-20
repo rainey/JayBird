@@ -27,6 +27,9 @@ compile_commands.json
 /utils/inno/resources.iss
 /utils/inno/version.iss
 plugins/plugins-jaybird.cpp
+plugins/plugins-jaybird.mk
 kconfig/gen/
 __pycache__/
 result*
+dist/
+dist

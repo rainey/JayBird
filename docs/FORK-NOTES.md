@@ -76,8 +76,8 @@ kconfiglib — the same menuconfig TUI as the Linux kernel.
 
 ```
 make menuconfig                          # edit default config (kconfig/configs/default.config)
-make CONFIG=distributable menuconfig     # edit a named config profile
-make CONFIG=distributable                # build with that profile
+make CONFIG=test menuconfig              # edit a named config profile
+make CONFIG=test                         # build with that profile
 make jaybird-gen                         # regenerate build inputs from current config
 ```
 
@@ -86,11 +86,17 @@ Without any `kconfig/configs/<CONFIG>.config` file, the build is **build-all**
 switches the build to the generated registration file `plugins/plugins-jaybird.cpp`
 which replaces upstream's `plugins/plugins.cpp` in `plugins.a`.
 
+`kconfig/configs/mini.config` (generated) mirrors upstream's `plugins-mini.cpp`
+selection for the main family; the `CardinalMini` bundle itself is built by
+upstream and is unaffected by `CONFIG` (see limitations).
+
 ### How it works
 
-- `kconfig/manifest.yaml` — hand-curated per-plugin license data (code license,
-  GPL-3.0-only flag, artwork license, phone-home). Regenerate the draft from
+- `kconfig/manifest.yaml` — hand-curated per-plugin license data that needs
+  judgment: artwork license and phone-home. Regenerate the draft from
   submodules via `python3 utils/jaybird/gen_manifest.py`, then curate by hand.
+  Code licenses are **derived at generation time** from each `plugin.json`
+  (with a LICENSE-file fallback) — see `utils/jaybird/licensing.py`.
 - `utils/jaybird/gen.py` — the generator. Joins three sources:
   - `plugins.cpp` registration blocks (`StaticPluginLoader spl(p, "<dir>")`,
     `p->addModel(...)`, `spl.removeModule(...)`),
@@ -99,12 +105,23 @@ which replaces upstream's `plugins/plugins.cpp` in `plugins.a`.
     patterns),
   - the selected `.config` (via kconfiglib, honoring policy switches and
     defaults).
-- Outputs: `kconfig/Kconfig.gen` (menu fragments) and
-  `plugins/plugins-jaybird.cpp` (filtered registration file).
-- Excluding a module = dropping its `addModel` line **plus** inserting
+- Outputs: `kconfig/Kconfig.gen` (menu fragments),
+  `plugins/plugins-jaybird.cpp` (filtered registration file),
+  `plugins/plugins-jaybird.mk` (disabled-plugin list for the Makefile), and
+  `kconfig/configs/mini.config`.
+- Excluding a **module** = dropping its `addModel` line **plus** inserting
   `spl.removeModule("<slug>")`, matching upstream's own exclusion mechanism
   (Rack's `Plugin::modulesFromJson` matches manifest entries by slug and
-  throws on stray entries).
+  throws on stray entries). The plugin's sources still compile.
+- Excluding a **plugin** = dropping its `initStatic__X()` body, its dispatch
+  call and its `updateStaticPluginsDarkMode()` block, and filtering its
+  sources (`PLUGIN_FILES`/`PLUGIN_BINARIES`) and shipped manifest
+  (`PLUGIN_LIST`) via `plugins-jaybird.mk`. Headers stay included (shared
+  stub definitions in `plugins.cpp` need the plugin types). Sources that
+  always-compiled helpers depend on (e.g. `BaconPlugs/src/Style.cpp`, used
+  by `surgext-helper`) are kept via `JAYBIRD_KEEP_SOURCES`, derived from
+  upstream's own `MINIPLUGIN_FILES` curation. This mirrors how upstream
+  hand-writes `plugins-mini.cpp`.
 - Policy switches in `kconfig/Kconfig`: `ALLOW_GPL3_ONLY` (default y —
   Cardinal's GPL-3.0-only exclusion is policy, not law), `ALLOW_NC_ARTWORK`
   (default y), `STRICT_NO_PHONE_HOME` (default y). Plugins failing the active
@@ -112,17 +129,22 @@ which replaces upstream's `plugins/plugins.cpp` in `plugins.a`.
 
 ### Known v1 limitations
 
-- Plugin-level exclusion still compiles the plugin's sources (they stay in
-  `plugins.a`); only registration is filtered. File-level exclusion is a
-  future optimization.
 - `ParableInstruments` registration is not filtered (shared
   `ArableInstruments` sources with `-DPARASITES`).
 - DHE-Modules registers via per-namespace init helpers — plugin-level
   selection only.
-- The Mini variant keeps its own curated registration file
-  (`plugins-mini.cpp`), i.e. deselection applies to main/FX/Synth/Native
-  archives; Mini's curated subset is unaffected (future work: make Mini
-  config-driven).
+- The `CardinalMini` variant keeps its own curated registration file
+  (`plugins-mini.cpp`) and is built exactly as upstream: `CONFIG` governs the
+  main/FX/Synth/Native/Loader archives only. `kconfig/configs/mini.config`
+  only reproduces that selection for those archives; don't distribute
+  `CardinalMini` if its fixed set does not fit your license requirements.
+- `updateStaticPluginsDarkMode()` shared blocks are mapped by hand
+  (`DARKMODE_PLUGINS` in `gen.py`); a new shared reference upstream would need
+  to be added there.
+- Cross-plugin source dependencies are only known where upstream's Mini
+  curation exposes them (`JAYBIRD_KEEP_SOURCES`). Disabling a plugin that
+  another *enabled* plugin's sources depend on (outside that set) can fail at
+  link time.
 
 ## Upgrading the Rack submodule
 

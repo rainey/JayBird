@@ -225,6 +225,9 @@ plugins: deps
 # regenerate selection inputs before plugins when a config is in use
 ifneq ($(wildcard $(KCONFIG_CONFIG)),)
 plugins: jaybird-gen
+else
+# build-all: drop generated selection inputs left over from an earlier profile
+$(shell rm -f plugins/plugins-jaybird.cpp plugins/plugins-jaybird.mk)
 endif
 
 resources:

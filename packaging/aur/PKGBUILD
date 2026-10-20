@@ -7,8 +7,8 @@ pkgdesc="Virtual modular synthesizer with configurable module selection (Cardina
 arch=(x86_64)
 url="https://github.com/rainey/JayBird"
 license=(GPL-3.0-or-later)
-# Module selection: a profile name from kconfig/configs/ (default, test),
-# or a path to a .config file. Override: _jaybird_config=test makepkg
+# Module selection: a profile name from kconfig/configs/ (default, test,
+# mini), or a path to a .config file. Override: _jaybird_config=mini makepkg
 _jaybird_config="${_jaybird_config:-default}"
 depends=(
   alsa-lib
