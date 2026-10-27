@@ -776,6 +776,32 @@ PLUGIN_FILES += $(filter-out GrandeModular/src/plugin.cpp,$(wildcard GrandeModul
 PLUGIN_FILES += $(filter-out h4n4-modules/src/plugin.cpp,$(wildcard h4n4-modules/src/*.cpp))
 
 # --------------------------------------------------------------
+# halfagiraf Modules
+#
+# Mirrors upstream Makefile: src/*.cpp minus plugin.cpp (Cardinal registers
+# models itself) and Palimpsest.cpp (unregistered dev code), plus the
+# header-only Sonavyre and the vendored Mutable Instruments Beads/stmlib
+# sources. Grainloom embeds Beads (GRAINLOOM_HOST build).
+#
+# Symbol hygiene: the vendored `stmlib` namespace is compiled unrenamed by
+# AudibleInstruments and renamed (Arablestmlib/Parablestmlib) by
+# Arable/Parable, so ours gets Halfagirafstmlib; CyanLight (BadSector) has
+# an inline weak twin in dBiz.
+
+PLUGIN_FILES += $(filter-out halfagiraf-modules/src/plugin.cpp halfagiraf-modules/src/Palimpsest.cpp,$(wildcard halfagiraf-modules/src/*.cpp))
+PLUGIN_FILES += halfagiraf-modules/src/sonavyre/Sonavyre.cpp
+
+# vendored Mutable Instruments Beads + stmlib (BEADS_HOST_SOURCES upstream)
+PLUGIN_FILES += $(wildcard halfagiraf-modules/vendor/mutable/beads/dsp/*.cc)
+PLUGIN_FILES += halfagiraf-modules/vendor/mutable/beads/resources.cc
+PLUGIN_FILES += halfagiraf-modules/vendor/mutable/beads/gain_control.cc
+PLUGIN_FILES += halfagiraf-modules/vendor/mutable/stmlib/utils/random.cc
+PLUGIN_FILES += halfagiraf-modules/vendor/mutable/stmlib/dsp/units.cc
+
+# modules/types which are present in other plugins
+HALFAGIRAF_CUSTOM = CyanLight
+
+# --------------------------------------------------------------
 # Hampton Harmonics
 
 PLUGIN_FILES += $(filter-out HamptonHarmonics/src/plugin.cpp,$(wildcard HamptonHarmonics/src/*.cpp))
@@ -2542,6 +2568,39 @@ $(BUILD_DIR)/h4n4-modules/%.cpp.o: h4n4-modules/%.cpp
 	$(SILENT)$(CXX) $< $(BUILD_CXX_FLAGS) -c -o $@ \
 		$(foreach m,$(H4N4_CUSTOM),$(call custom_module_names,$(m),H4N4)) \
 		-DpluginInstance=pluginInstance__H4N4
+
+$(BUILD_DIR)/halfagiraf-modules/%.cpp.o: halfagiraf-modules/%.cpp | submodule-patches
+	-@mkdir -p "$(shell dirname $(BUILD_DIR)/$<)"
+	@echo "Compiling $<"
+	$(SILENT)$(CXX) $< $(BUILD_CXX_FLAGS) -c -o $@ \
+		$(foreach m,$(HALFAGIRAF_CUSTOM),$(call custom_module_names,$(m),Halfagiraf)) \
+		-DpluginInstance=pluginInstance__halfagiraf \
+		-Dstmlib=Halfagirafstmlib \
+		-Wno-sign-compare
+
+$(BUILD_DIR)/halfagiraf-modules/src/Grainloom.cpp.o: halfagiraf-modules/src/Grainloom.cpp | submodule-patches
+	-@mkdir -p "$(shell dirname $(BUILD_DIR)/$<)"
+	@echo "Compiling $<"
+	$(SILENT)$(CXX) $< $(BUILD_CXX_FLAGS) -c -o $@ \
+		$(foreach m,$(HALFAGIRAF_CUSTOM),$(call custom_module_names,$(m),Halfagiraf)) \
+		-DpluginInstance=pluginInstance__halfagiraf \
+		-Dstmlib=Halfagirafstmlib \
+		-DGRAINLOOM_HOST -D_USE_MATH_DEFINES \
+		-Ihalfagiraf-modules/vendor/mutable \
+		-include cstdio \
+		-Wno-unused-local-typedefs \
+		-fno-unsafe-math-optimizations -ffp-contract=off
+
+$(BUILD_DIR)/halfagiraf-modules/vendor/mutable/%.cc.o: halfagiraf-modules/vendor/mutable/%.cc | submodule-patches
+	-@mkdir -p "$(shell dirname $(BUILD_DIR)/$<)"
+	@echo "Compiling $<"
+	$(SILENT)$(CXX) $< $(BUILD_CXX_FLAGS) -c -o $@ \
+		-Dstmlib=Halfagirafstmlib \
+		-DGRAINLOOM_HOST -D_USE_MATH_DEFINES \
+		-Ihalfagiraf-modules/vendor/mutable \
+		-include cstdio \
+		-Wno-unused-local-typedefs -Wno-sign-compare \
+		-fno-unsafe-math-optimizations -fno-finite-math-only -ffp-contract=off
 
 $(BUILD_DIR)/HamptonHarmonics/%.cpp.o: HamptonHarmonics/%.cpp
 	-@mkdir -p "$(shell dirname $(BUILD_DIR)/$<)"

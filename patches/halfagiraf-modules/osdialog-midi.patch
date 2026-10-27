@@ -1,0 +1,174 @@
+diff --git a/src/Entwine.cpp b/src/Entwine.cpp
+index e071c2c..168bc1c 100644
+--- a/src/Entwine.cpp
++++ b/src/Entwine.cpp
+@@ -1,6 +1,14 @@
+ #include "plugin.hpp"
+ #include "EntwineData.hpp"
++#ifdef USING_CARDINAL_NOT_RACK
++// Cardinal's plugin build stubs osdialog out and has no MIDI drivers; the
++// async dialog API lives in common.hpp and the host MIDI bridge in
++// plugincontext.hpp (both included from JayBird's include/ dir).
++#include <common.hpp>
++#include <plugincontext.hpp>
++#else
+ #include <osdialog.h>
++#endif
+ #include <cmath>
+ #include <cstring>
+ #include <cstdio>
+@@ -164,16 +172,42 @@ struct Entwine : Module {
+ 	float pulsarMeter = 0.f, quasarMeter = 0.f;
+ 
+ 	// MIDI output: Pulsar voices on channel 1, Quasar voices on channel 2.
++	// Cardinal has no MIDI drivers/ports (rack::midi::Output is stubbed out),
++	// so under USING_CARDINAL_NOT_RACK messages go straight to the host via
++	// CardinalPluginContext::writeMidiMessage instead.
++#ifdef USING_CARDINAL_NOT_RACK
++	struct CardinalMidiOut {
++		void sendMessage(const midi::Message& m) {
++			auto* pc = static_cast<CardinalPluginContext*>(APP);
++			if (pc) pc->writeMidiMessage(m, m.getChannel());
++		}
++		bool getDeviceId() const { return 0; }
++		int getDriverId() const { return 0; }
++		json_t* toJson() const { return json_object(); }
++		void fromJson(json_t*) {}
++	};
++	CardinalMidiOut midiOut;
++#else
+ 	midi::Output midiOut;
++#endif
+ 	bool midiMono = false;     // send only 1 voice per channel (clean for KeyStep etc.)
+ 	float midiGate = 0.6f;     // note length as fraction of the step -> gives gate gaps
+ 	void sendMidi(int chan, bool on, int note, int vel) {
++#ifdef USING_CARDINAL_NOT_RACK
++		// Cardinal: always "connected", send straight to the host.
++		midi::Message m;
++		m.bytes[0] = (on ? 0x90 : 0x80) | (chan & 0x0F);
++		m.bytes[1] = (uint8_t) clamp(note, 0, 127);
++		m.bytes[2] = (uint8_t) clamp(vel, 0, 127);
++		midiOut.sendMessage(m);
++#else
+ 		if (midiOut.getDeviceId() < 0) return;
+ 		midi::Message m;
+ 		m.bytes[0] = (on ? 0x90 : 0x80) | (chan & 0x0F);
+ 		m.bytes[1] = (uint8_t) clamp(note, 0, 127);
+ 		m.bytes[2] = (uint8_t) clamp(vel, 0, 127);
+ 		midiOut.sendMessage(m);
++#endif
+ 	}
+ 
+ 	// Additional MIDI-controlled settings without front-panel controls.
+@@ -802,8 +836,14 @@ struct EntwineWidget : ModuleWidget {
+ 		menu->addChild(createMenuItem(
+ 			m->wtUserLoaded ? string::f("Wavetable: %d frames (custom)", m->userWtFrames) : "Load wavetable (.wav, 256-sample frames)...",
+ 			"", [m]() {
++#ifdef USING_CARDINAL_NOT_RACK
++				async_dialog_filebrowser(false, nullptr, nullptr, "Load wavetable", [m](char* path) {
++					if (path) { m->loadWavetable(path); std::free(path); }
++				});
++#else
+ 				char* path = osdialog_file(OSDIALOG_OPEN, NULL, NULL, NULL);
+ 				if (path) { m->loadWavetable(path); std::free(path); }
++#endif
+ 			}));
+ 		if (m->wtUserLoaded)
+ 			menu->addChild(createMenuItem("Restore default wavetable", "", [m]() {
+@@ -812,8 +852,14 @@ struct EntwineWidget : ModuleWidget {
+ 		menu->addChild(createMenuItem(
+ 			m->scalesUserLoaded ? "Scales: custom scale.txt loaded" : "Load scales (scale.txt)...",
+ 			"", [m]() {
++#ifdef USING_CARDINAL_NOT_RACK
++				async_dialog_filebrowser(false, nullptr, nullptr, "Load scales", [m](char* path) {
++					if (path) { m->loadScales(path); std::free(path); }
++				});
++#else
+ 				char* path = osdialog_file(OSDIALOG_OPEN, NULL, NULL, NULL);
+ 				if (path) { m->loadScales(path); std::free(path); }
++#endif
+ 			}));
+ 		if (m->scalesUserLoaded)
+ 			menu->addChild(createMenuItem("Restore default scales", "", [m]() {
+@@ -822,6 +868,10 @@ struct EntwineWidget : ModuleWidget {
+ 
+ 		menu->addChild(new MenuSeparator);
+ 		menu->addChild(createMenuLabel("MIDI output (Pulsar=ch1, Quasar=ch2)"));
++#ifdef USING_CARDINAL_NOT_RACK
++		// No MIDI drivers/devices in Cardinal: output goes to the host, so
++		// the Driver/Device submenus are meaningless and are omitted.
++#else
+ 		menu->addChild(createSubmenuItem("Driver", "", [m](Menu* sub) {
+ 			for (int id : midi::getDriverIds())
+ 				sub->addChild(createCheckMenuItem(midi::getDriver(id)->getName(), "",
+@@ -834,6 +884,7 @@ struct EntwineWidget : ModuleWidget {
+ 					[m, id]() { return m->midiOut.getDeviceId() == id; },
+ 					[m, id]() { m->midiOut.setDeviceId(id); }));
+ 		}));
++#endif
+ 		menu->addChild(createBoolPtrMenuItem("Monophonic (1 voice per channel)", "", &m->midiMono));
+ 		menu->addChild(createSubmenuItem("Gate length", "", [m](Menu* sub) {
+ 			static const float vals[] = {0.2f, 0.4f, 0.6f, 0.8f, 0.95f};
+diff --git a/src/sonavyre/ui/Interface.hpp b/src/sonavyre/ui/Interface.hpp
+index f517016..10de44b 100644
+--- a/src/sonavyre/ui/Interface.hpp
++++ b/src/sonavyre/ui/Interface.hpp
+@@ -1,5 +1,11 @@
+ #pragma once
++#ifdef USING_CARDINAL_NOT_RACK
++// Cardinal's plugin build stubs osdialog out; the async replacements are
++// declared in common.hpp (visible through the rack.hpp include chain).
++#include <common.hpp>
++#else
+ #include <osdialog.h>
++#endif
+ #include "../engine/Engine.hpp"
+ #include "../presets/Library.hpp"
+ #include "../visualisations/EnergyField.hpp"
+@@ -174,7 +180,11 @@ struct SonavyreWidget : ModuleWidget {
+   bool available=false;
+   for(int i=0;i<PRO_N;i++)if(sonavyreFactoryId(i)==global)available=true;
+   if(json_is_true(json_object_get(data,"customBank"))||!available) {
++#ifdef USING_CARDINAL_NOT_RACK
++   async_dialog_message("This preset uses a program outside this edition's factory library. Open it in an edition containing that effect.");
++#else
+    osdialog_message(OSDIALOG_INFO,OSDIALOG_OK,"This preset uses a program outside this edition's factory library. Open it in an edition containing that effect.");
++#endif
+    return;
+   }
+ #endif
+@@ -222,15 +232,33 @@ struct SonavyreWidget : ModuleWidget {
+     sm->addChild(createMenuItem("Duplicate","",[=](){auto j=json_deep_copy(library.state(i));library.add(name+" copy",j);json_decref(j);}));
+     sm->addChild(createMenuItem("Save edits","",[=](){auto j=capture();library.reload();auto p=json_array_get(library.presets(),i);json_object_set(p,"state",j);library.save();json_decref(j);}));
+     sm->addChild(createSubmenuItem("Delete...","",[=](Menu* confirm){confirm->addChild(createMenuItem("Confirm delete user preset","",[=](){library.remove(i);}));}));
+-    sm->addChild(createMenuItem("Export...","",[=](){char* path=osdialog_file(OSDIALOG_SAVE,nullptr,"sonavyre-preset.json",nullptr);if(path){auto j=json_object();json_object_set_new(j,"format",json_string("sonavyre-preset-v1"));json_object_set_new(j,"name",json_string(name.c_str()));json_object_set(j,"state",library.state(i));json_dump_file(j,path,JSON_INDENT(2));json_decref(j);std::free(path);}}));
++    sm->addChild(createMenuItem("Export...","",[=](){
++#ifdef USING_CARDINAL_NOT_RACK
++     async_dialog_filebrowser(true,"sonavyre-preset.json",nullptr,"Export preset",[this,name,i](char* path){
++      if(path){auto j=json_object();json_object_set_new(j,"format",json_string("sonavyre-preset-v1"));json_object_set_new(j,"name",json_string(name.c_str()));json_object_set(j,"state",library.state(i));json_dump_file(j,path,JSON_INDENT(2));json_decref(j);std::free(path);}
++     });
++#else
++     char* path=osdialog_file(OSDIALOG_SAVE,nullptr,"sonavyre-preset.json",nullptr);if(path){auto j=json_object();json_object_set_new(j,"format",json_string("sonavyre-preset-v1"));json_object_set_new(j,"name",json_string(name.c_str()));json_object_set(j,"state",library.state(i));json_dump_file(j,path,JSON_INDENT(2));json_decref(j);std::free(path);}
++#endif
++    }));
+    }));
+   }
+   menu->addChild(createMenuItem("Import preset...","",[=](){
++#ifdef USING_CARDINAL_NOT_RACK
++   async_dialog_filebrowser(false,nullptr,nullptr,"Import preset",[=](char* path){
++    if(!path)return;
++    json_error_t e;auto j=json_load_file(path,0,&e);std::free(path);
++    auto f=json_object_get(j,"format"),n=json_object_get(j,"name"),st=json_object_get(j,"state");
++    if(json_is_string(f)&&std::string(json_string_value(f))=="sonavyre-preset-v1"&&json_is_string(n)&&json_is_object(st))library.add(json_string_value(n),st);
++    json_decref(j);
++   });
++#else
+    char* path=osdialog_file(OSDIALOG_OPEN,nullptr,nullptr,nullptr);if(!path)return;
+    json_error_t e;auto j=json_load_file(path,0,&e);std::free(path);
+    auto f=json_object_get(j,"format"),n=json_object_get(j,"name"),st=json_object_get(j,"state");
+    if(json_is_string(f)&&std::string(json_string_value(f))=="sonavyre-preset-v1"&&json_is_string(n)&&json_is_object(st))library.add(json_string_value(n),st);
+    json_decref(j);
++#endif
+   }));
+  }
+  struct FloatSlider : ui::Slider {

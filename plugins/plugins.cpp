@@ -467,6 +467,9 @@ void saveGtgPluginDefault(const char*, int) {}
 // H4N4 Modules
 #include "h4n4-modules/src/plugin.hpp"
 
+// halfagiraf Modules
+#include "halfagiraf-modules/src/plugin.hpp"
+
 // Hampton Harmonics
 #define modelArp modelHamptonHarmonicsArp
 #define modelProgress modelHamptonHarmonicsProgress
@@ -1025,6 +1028,7 @@ Plugin* pluginInstance__GlueTheGiant;
 Plugin* pluginInstance__GoodSheperd;
 Plugin* pluginInstance__GrandeModular;
 Plugin* pluginInstance__H4N4;
+Plugin* pluginInstance__halfagiraf;
 Plugin* pluginInstance__HamptonHarmonics;
 Plugin* pluginInstance__HetrickCV;
 extern Plugin* pluginInstance__ImpromptuModular;
@@ -2608,6 +2612,23 @@ static void initStatic__H4N4()
     }
 }
 
+static void initStatic__halfagiraf()
+{
+    Plugin* const p = new Plugin;
+    pluginInstance__halfagiraf = p;
+
+    const StaticPluginLoader spl(p, "halfagiraf-modules");
+    if (spl.ok())
+    {
+        p->addModel(modelBadSector);
+        p->addModel(modelMOD1);
+        p->addModel(modelEntwine);
+        p->addModel(modelConstellate);
+        p->addModel(modelGrainloom);
+        p->addModel(modelSonavyre);
+    }
+}
+
 static void initStatic__HamptonHarmonics()
 {
     Plugin* const p = new Plugin;
@@ -4039,6 +4060,7 @@ void initStaticPlugins()
     initStatic__GoodSheperd();
     initStatic__GrandeModular();
     initStatic__H4N4();
+    initStatic__halfagiraf();
     initStatic__HamptonHarmonics();
     initStatic__HetrickCV();
     initStatic__ImpromptuModular();

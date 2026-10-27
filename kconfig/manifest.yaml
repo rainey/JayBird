@@ -143,6 +143,16 @@ plugins/SignalFunctionSet:
   artwork_license: 'GPL-3.0-or-later'
   phone_home: true
 
+# plugins/halfagiraf-modules
+# Code: GPL-3.0-or-later (plugin.json/LICENSE); vendored Mutable Instruments
+# Beads + stmlib are MIT-permission (LICENSE-Beads.txt). Artwork GPL-3.0-or-later
+# (same plugin.json license). No network access anywhere in src/. Upstream
+# compiles src/*.cpp except Palimpsest.cpp (unregistered dev code) plus the
+# header-only src/sonavyre/Sonavyre.cpp and vendored Beads sources.
+plugins/halfagiraf-modules:
+  artwork_license: 'GPL-3.0-or-later'
+  phone_home: false
+
 # plugins/DHE-Modules
 plugins/DHE-Modules:
   artwork_license: 'MIT'

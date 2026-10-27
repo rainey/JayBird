@@ -5730,6 +5730,38 @@ config MOD_H4N4_MODULES_XEN_QNT
 	depends on PLUG_H4N4_MODULES
 endif
 endmenu
+menu "halfagiraf-modules (halfagiraf-modules)"
+	comment "code: GPL-3.0-or-later  artwork: GPL-3.0-or-later"
+config PLUG_HALFAGIRAF_MODULES
+	bool "halfagiraf-modules"
+	default y
+if PLUG_HALFAGIRAF_MODULES
+config MOD_HALFAGIRAF_MODULES_BADSECTOR
+	bool "Bad Sector"
+	default PLUG_HALFAGIRAF_MODULES
+	depends on PLUG_HALFAGIRAF_MODULES
+config MOD_HALFAGIRAF_MODULES_MOD1_RANDOMCV
+	bool "MOD1"
+	default PLUG_HALFAGIRAF_MODULES
+	depends on PLUG_HALFAGIRAF_MODULES
+config MOD_HALFAGIRAF_MODULES_ENTWINE
+	bool "Entwine"
+	default PLUG_HALFAGIRAF_MODULES
+	depends on PLUG_HALFAGIRAF_MODULES
+config MOD_HALFAGIRAF_MODULES_CONSTELLATE
+	bool "Constellate"
+	default PLUG_HALFAGIRAF_MODULES
+	depends on PLUG_HALFAGIRAF_MODULES
+config MOD_HALFAGIRAF_MODULES_GRAINLOOM
+	bool "Grainloom"
+	default PLUG_HALFAGIRAF_MODULES
+	depends on PLUG_HALFAGIRAF_MODULES
+config MOD_HALFAGIRAF_MODULES_SONAVYRE
+	bool "SONAVYRE"
+	default PLUG_HALFAGIRAF_MODULES
+	depends on PLUG_HALFAGIRAF_MODULES
+endif
+endmenu
 menu "ihtsyn (ihtsyn)"
 	comment "code: GPL-3.0-or-later  artwork: GPL-3.0-or-later"
 config PLUG_IHTSYN

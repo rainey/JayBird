@@ -272,3 +272,6 @@
 [submodule "plugins/SignalFunctionSet"]
 	path = plugins/SignalFunctionSet
 	url = https://github.com/stuart78/SignalFunctionSet-VCV-Rack.git
+[submodule "plugins/halfagiraf-modules"]
+	path = plugins/halfagiraf-modules
+	url = https://github.com/stevenmcsorley/halfagiraf-modules.git

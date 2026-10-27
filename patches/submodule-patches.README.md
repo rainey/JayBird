@@ -59,3 +59,7 @@ and fresh checkouts just work.
 
 - `SignalFunctionSet/osdialog-async.patch` — convert blocking osdialog
   calls to Cardinal's async dialog API. See its meta.yaml for details.
+- `halfagiraf-modules/osdialog-midi.patch` — osdialog → async dialogs,
+  plus a host-MIDI bridge for Entwine (CardinalPluginContext::
+  writeMidiMessage) replacing the stubbed-out `rack::midi::Output`.
+  See its meta.yaml for details.

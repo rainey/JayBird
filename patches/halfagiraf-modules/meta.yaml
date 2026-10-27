@@ -1,0 +1,31 @@
+submodule: plugins/halfagiraf-modules
+reason: Cardinal's plugin build stubs osdialog out and removes the MIDI
+  driver stack (rack::midi::Output is gone from include/midi.hpp), so
+  Entwine.cpp and sonavyre/ui/Interface.hpp fail to compile as-is.
+notes: >-
+  Two categories of fix, all under USING_CARDINAL_NOT_RACK (upstream Rack
+  behavior unchanged in the #else branches):
+
+  - osdialog -> async dialogs (patches/halfagiraf-modules/README applies to
+    the same rules as SignalFunctionSet's osdialog-async.patch):
+    Entwine.cpp wavetable/scale loaders become async_dialog_filebrowser;
+    sonavyre preset Export/Import become async save/open dialogs; the
+    sonavyre "program outside this edition" error becomes
+    async_dialog_message.
+
+  - MIDI output bridge (Entwine.cpp only): the module's midi::Output
+    member becomes a small CardinalMidiOut adapter under Cardinal that
+    forwards note on/off to the host through
+    CardinalPluginContext::writeMidiMessage (declared in
+    include/plugincontext.hpp, defined in src/CardinalCommon.cpp,
+    resolved at the final Cardinal link). Message bytes are already
+    channel-tagged by sendMidi. The Driver/Device context-menu submenus
+    are omitted under Cardinal since there is no driver/device model;
+    toJson/fromJson of the midi port state are neutralized (empty
+    object), which means saved patches lose the Rack-only port selection
+    when round-tripped through Cardinal — acceptable, the rest of the
+    module state is preserved.
+
+  Applies to halfagiraf-modules main 1ea2885 (plugin.json 2.2.0).
+  Regenerate after moving the pin:
+    git -C plugins/halfagiraf-modules diff > patches/halfagiraf-modules/osdialog-midi.patch
