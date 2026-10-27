@@ -269,3 +269,6 @@
 [submodule "plugins/CountModula"]
 	path = plugins/CountModula
 	url = https://github.com/countmodula/VCVRackPlugins.git
+[submodule "plugins/SignalFunctionSet"]
+	path = plugins/SignalFunctionSet
+	url = https://github.com/stuart78/SignalFunctionSet-VCV-Rack.git
