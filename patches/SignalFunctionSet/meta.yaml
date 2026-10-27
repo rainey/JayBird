@@ -1,0 +1,37 @@
+# patches/SignalFunctionSet — build-time submodule patch
+#
+# The patch converts every blocking osdialog call (file open/save, directory
+# pick, message box, text prompt) to Cardinal's async dialog API, guarded by
+# USING_CARDINAL_NOT_RACK. Upstream Rack behavior is unchanged in the #else
+# branches.
+#
+# Why: Cardinal's plugin build replaces osdialog.h with a stub that declares
+# only the filter helpers (include/osdialog-stub/osdialog.h, added upstream
+# in Cardinal commit 83ba2ca "Make sure plugins do not use osdialog"), so
+# osdialog_file/osdialog_message/osdialog_prompt do not link. Same treatment
+# upstream gave LilacLoop, Bidoo, AmalgamatedHarmonics and cf.
+#
+# Applies to: SignalFunctionSet master 07950aa5 (plugin.json 2.23.1).
+# Regenerate after moving the pin:
+#   git -C plugins/SignalFunctionSet diff > patches/SignalFunctionSet/osdialog-async.patch
+
+submodule: plugins/SignalFunctionSet
+reason: osdialog is stubbed out in Cardinal plugin builds; convert to
+  async_dialog_filebrowser / async_dialog_message / async_dialog_text_input
+  (include/common.hpp, declared via the rack.hpp include chain).
+notes: >-
+  Deviations forced by the async API (documented here, mirrored from
+  upstream's own LilacLoop/Bidoo/cf adaptations):
+  - osdialog filters (file-type dropdowns) are dropped; the async file
+    browser has no filter parameter.
+  - osdialog_prompt (text entry) becomes async_dialog_text_input.
+  - OSDIALOG_OPEN_DIR (directory picker) does not exist in the async API;
+    sites that needed a folder now open a save dialog and use the chosen
+    file's directory instead (record.cpp destination folder, play.cpp
+    DecentSampler bundle folder, strata.cpp folder-of-tables).
+  - phase.cpp already had a METAMODULE async variant with the right callback
+    shape; the Cardinal branch mirrors it via async_dialog_filebrowser.
+  - play.cpp loadReq and record.cpp startReq polled a modal dialog inside
+    step(); the async version fires the request and returns, resuming in the
+    dialog callback. record.cpp defers startPlan(true) into the callback when
+    the folder still needs choosing.

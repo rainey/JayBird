@@ -887,6 +887,17 @@ void addThemeMenuItems(Menu*, ModuleTheme*) {}
 // sonusmodular
 #include "sonusmodular/src/sonusmodular.hpp"
 
+// SignalFunctionSet
+#define modelArrange modelSignalFunctionSetArrange
+#define modelDrift modelSignalFunctionSetDrift
+#define modelShift modelSignalFunctionSetShift
+#define modelSigma modelSignalFunctionSetSigma
+#include "SignalFunctionSet/src/plugin.hpp"
+#undef modelArrange
+#undef modelDrift
+#undef modelShift
+#undef modelSigma
+
 // Starling Via
 #define modelScanner modelStarlingViaScanner
 #define Scale starlingViaScale
@@ -1047,6 +1058,7 @@ Plugin* pluginInstance__RebelTech;
 Plugin* pluginInstance__repelzen;
 Plugin* pluginInstance__sapphire;
 Plugin* pluginInstance__sonusmodular;
+Plugin* pluginInstance__SignalFunctionSet;
 Plugin* pluginInstance__StarlingVia;
 Plugin* pluginInstance__stocaudio;
 extern Plugin* pluginInstance__stoermelder_p1;
@@ -3509,6 +3521,79 @@ static void initStatic__sonusmodular()
     }
 }
 
+static void initStatic__SignalFunctionSet()
+{
+    Plugin* const p = new Plugin;
+    pluginInstance__SignalFunctionSet = p;
+
+    const StaticPluginLoader spl(p, "SignalFunctionSet");
+    if (spl.ok())
+    {
+#define modelArrange modelSignalFunctionSetArrange
+#define modelDrift modelSignalFunctionSetDrift
+#define modelShift modelSignalFunctionSetShift
+#define modelSigma modelSignalFunctionSetSigma
+        p->addModel(modelDrift);
+        p->addModel(modelGsx);
+        p->addModel(modelFugue);
+        p->addModel(modelPhase);
+        p->addModel(modelOvertone);
+        p->addModel(modelIntone);
+        p->addModel(modelTine);
+        p->addModel(modelMeter);
+        p->addModel(modelMeterExpander);
+        p->addModel(modelFugueX);
+        p->addModel(modelMetaFugue);
+        p->addModel(modelBeat);
+        p->addModel(modelNote);
+        p->addModel(modelSwell);
+        p->addModel(modelShift);
+        p->addModel(modelWave);
+        p->addModel(modelVac);
+        p->addModel(modelMuse);
+        p->addModel(modelGravity);
+        p->addModel(modelBand);
+        p->addModel(modelCycle);
+        p->addModel(modelOperator);
+        p->addModel(modelOpEnv);
+        p->addModel(modelChance);
+        p->addModel(modelRecord);
+        p->addModel(modelPlay);
+        p->addModel(modelRatio);
+        p->addModel(modelArrange);
+        p->addModel(modelFill);
+        p->addModel(modelChime);
+        p->addModel(modelCrystal);
+        p->addModel(modelLoom);
+        p->addModel(modelKey);
+        p->addModel(modelSlide);
+        p->addModel(modelOpMorph);
+        p->addModel(modelHelix);
+        p->addModel(modelBrigade);
+        p->addModel(modelSpool);
+        p->addModel(modelSlideX);
+        p->addModel(modelSlice);
+        p->addModel(modelKit);
+        p->addModel(modelPolyKitIn);
+        p->addModel(modelField);
+        p->addModel(modelTrace);
+        p->addModel(modelSigma);
+        p->addModel(modelTouch);
+        p->addModel(modelFlock);
+        p->addModel(modelFlockIn);
+        p->addModel(modelCanon);
+        p->addModel(modelCount);
+        p->addModel(modelCarillon);
+        p->addModel(modelStrata);
+        p->addModel(modelCistern);
+        p->addModel(modelWheel);
+#undef modelArrange
+#undef modelDrift
+#undef modelShift
+#undef modelSigma
+    }
+}
+
 static void initStatic__StarlingVia()
 {
     Plugin* const p = new Plugin;
@@ -3987,6 +4072,7 @@ void initStaticPlugins()
     initStatic__repelzen();
     initStatic__Sapphire();
     initStatic__sonusmodular();
+    initStatic__SignalFunctionSet();
     initStatic__StarlingVia();
     initStatic__stocaudio();
     initStatic__stoermelder_p1();

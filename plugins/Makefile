@@ -1067,6 +1067,16 @@ PLUGIN_FILES += $(filter-out Sapphire/src/plugin.cpp,$(wildcard Sapphire/src/*.c
 PLUGIN_FILES += $(filter-out sonusmodular/src/sonusmodular.cpp,$(wildcard sonusmodular/src/*.cpp))
 
 # --------------------------------------------------------------
+# SignalFunctionSet
+
+PLUGIN_FILES += $(filter-out SignalFunctionSet/src/plugin.cpp,$(wildcard SignalFunctionSet/src/*.cpp))
+PLUGIN_FILES += $(wildcard SignalFunctionSet/src/msfa/*.cc)
+PLUGIN_FILES += SignalFunctionSet/src/miniz.c
+
+# modules/types which are present in other plugins
+SFS_CUSTOM = Arrange Drift Shift Sigma $(DRWAV)
+
+# --------------------------------------------------------------
 # Starling Via
 
 PLUGIN_FILES += $(filter-out StarlingVia/src/starling.cpp,$(wildcard StarlingVia/src/*.cpp))
@@ -1449,6 +1459,20 @@ RTNEURAL_FLAGS += -DRTNEURAL_USE_EIGEN=1
 
 RTNEURAL_FLAGS += -ICardinal/src/AIDA-X/RTNeural
 RTNEURAL_FLAGS += -ICardinal/src/AIDA-X/RTNeural/modules/Eigen
+
+# --------------------------------------------------------------
+# Build-time submodule patches
+#
+# Submodule sources stay pristine in git; fixes JayBird needs live in
+# patches/<Subdir>/*.patch and are applied into the submodule working tree
+# before anything compiles. See patches/submodule-patches.mk.
+#
+# Hooked as an order-only prerequisite (never in $^, so the ar rules are
+# unaffected) of the plugin archives and of the object rules of patched
+# plugins (search for "| submodule-patches" below).
+
+submodule-patches:
+	@$(MAKE) -f $(abspath $(ROOT)/patches/submodule-patches.mk) --no-print-directory submodule-patches
 
 # --------------------------------------------------------------
 # Build targets
@@ -2116,15 +2140,15 @@ MINIPLUGIN_OBJS += $(MINIPLUGIN_BINARIES:%=$(BUILD_DIR)/%.bin.o)
 custom_module_names = -D${1}=${2}${1} -Dmodel${1}=model${2}${1} -D${1}Widget=${2}${1}Widget
 custom_per_file_names = -D${1}=${2}_${1}
 
-plugins$(TARGET_SUFFIX).a: $(PLUGIN_OBJS)
+plugins$(TARGET_SUFFIX).a: $(PLUGIN_OBJS) | submodule-patches
 	@echo "Creating $@"
 	$(SILENT)rm -f $@
-	$(SILENT)$(AR) crs $@ $^
+	$(SILENT)$(AR) crs $@ $(PLUGIN_OBJS)
 
-plugins-mini$(TARGET_SUFFIX).a: $(MINIPLUGIN_OBJS)
+plugins-mini$(TARGET_SUFFIX).a: $(MINIPLUGIN_OBJS) | submodule-patches
 	@echo "Creating $@"
 	$(SILENT)rm -f $@
-	$(SILENT)$(AR) crs $@ $^
+	$(SILENT)$(AR) crs $@ $(MINIPLUGIN_OBJS)
 
 $(BUILD_DIR)/%.bin.c: % ../deps/res2c.py
 	-@mkdir -p "$(shell dirname $(BUILD_DIR)/$<)"
@@ -2821,6 +2845,25 @@ $(BUILD_DIR)/sonusmodular/%.cpp.o: sonusmodular/%.cpp
 	$(SILENT)$(CXX) $< $(BUILD_CXX_FLAGS) -c -o $@ \
 		$(foreach m,$(SONUSMODULAR_CUSTOM),$(call custom_module_names,$(m),sonusmodular)) \
 		-DpluginInstance=pluginInstance__sonusmodular
+
+$(BUILD_DIR)/SignalFunctionSet/%.cpp.o: SignalFunctionSet/%.cpp | submodule-patches
+	-@mkdir -p "$(shell dirname $(BUILD_DIR)/$<)"
+	@echo "Compiling $<"
+	$(SILENT)$(CXX) $< $(BUILD_CXX_FLAGS) -c -o $@ \
+		$(foreach m,$(SFS_CUSTOM),$(call custom_module_names,$(m),SignalFunctionSet)) \
+		-DpluginInstance=pluginInstance__SignalFunctionSet
+
+$(BUILD_DIR)/SignalFunctionSet/%.cc.o: SignalFunctionSet/%.cc | submodule-patches
+	-@mkdir -p "$(shell dirname $(BUILD_DIR)/$<)"
+	@echo "Compiling $<"
+	$(SILENT)$(CXX) $< $(BUILD_CXX_FLAGS) -c -o $@ \
+		-DpluginInstance=pluginInstance__SignalFunctionSet
+
+$(BUILD_DIR)/SignalFunctionSet/src/miniz.c.o: SignalFunctionSet/src/miniz.c | submodule-patches
+	-@mkdir -p "$(shell dirname $(BUILD_DIR)/$<)"
+	@echo "Compiling $<"
+	$(SILENT)$(CC) $< $(BUILD_C_FLAGS) -c -o $@ \
+		$(foreach m,$(SFS_CUSTOM),$(call custom_module_names,$(m),SignalFunctionSet))
 
 $(BUILD_DIR)/StarlingVia/%.cpp.o: StarlingVia/%.cpp
 	-@mkdir -p "$(shell dirname $(BUILD_DIR)/$<)"

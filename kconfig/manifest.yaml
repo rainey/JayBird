@@ -135,6 +135,14 @@ plugins/CountModula:
   artwork_license: 'Custom'
   phone_home: false
 
+# plugins/SignalFunctionSet
+# Code: GPL-3.0-or-later (plugin.json/LICENSE). No separate artwork
+# license found; vendored msfa (Apache-2.0) and miniz are code, not art.
+# fill.cpp downloads patterns from drum-patterns.com (network::request).
+plugins/SignalFunctionSet:
+  artwork_license: 'GPL-3.0-or-later'
+  phone_home: true
+
 # plugins/DHE-Modules
 plugins/DHE-Modules:
   artwork_license: 'MIT'

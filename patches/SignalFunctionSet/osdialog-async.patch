@@ -1,0 +1,392 @@
+diff --git a/src/bell.cpp b/src/bell.cpp
+index a149c5b..fdd3f58 100644
+--- a/src/bell.cpp
++++ b/src/bell.cpp
+@@ -885,9 +885,15 @@ struct BellWidget : ModuleWidget {
+ 		menu->addChild(new MenuSeparator);
+ 		menu->addChild(createMenuLabel("Banks"));
+ 		menu->addChild(createMenuItem("Load bank (.syx)…", "", [m]() {
++#ifdef USING_CARDINAL_NOT_RACK
++			async_dialog_filebrowser(false, nullptr, nullptr, "Load bank (.syx)", [m](char* path) {
++				if (path) { m->addBank(path); std::free(path); }
++			});
++#else
+ 			char* path = osdialog_file(OSDIALOG_OPEN, NULL, NULL,
+ 				osdialog_filters_parse(BELL_SYX_FILTERS));
+ 			if (path) { m->addBank(path); std::free(path); }
++#endif
+ 		}));
+ 		// Loaded banks (click to select, with a Remove sub-action).
+ 		for (int i = 0; i < (int) m->banks.size(); i++) {
+diff --git a/src/fill.cpp b/src/fill.cpp
+index 953d21e..56dfd78 100644
+--- a/src/fill.cpp
++++ b/src/fill.cpp
+@@ -1805,7 +1805,11 @@ struct FillWidget : ModuleWidget {
+ 			while (!url.empty() && std::isspace((unsigned char)url.back())) url.pop_back();
+ 			while (!url.empty() && std::isspace((unsigned char)url.front())) url.erase(0, 1);
+ 			if (url.compare(0, 4, "http") != 0) {
++#ifdef USING_CARDINAL_NOT_RACK
++				async_dialog_message("Copy a drum-patterns.com pattern URL to the clipboard first, then use this menu item.");
++#else
+ 				osdialog_message(OSDIALOG_ERROR, OSDIALOG_OK, "Copy a drum-patterns.com pattern URL to the clipboard first, then use this menu item.");
++#endif
+ 				return;
+ 			}
+ 			std::string slug = url;
+@@ -1818,7 +1822,11 @@ struct FillWidget : ModuleWidget {
+ 			std::string tmp = asset::user("SignalFunctionSet/dp-import.tmp");
+ 			system::createDirectories(asset::user("SignalFunctionSet"));
+ 			if (!network::requestDownload(url, tmp, nullptr)) {
++#ifdef USING_CARDINAL_NOT_RACK
++				async_dialog_message("Download failed — check the URL and your connection.");
++#else
+ 				osdialog_message(OSDIALOG_ERROR, OSDIALOG_OK, "Download failed — check the URL and your connection.");
++#endif
+ 				return;
+ 			}
+ 			std::string data;
+@@ -1834,7 +1842,11 @@ struct FillWidget : ModuleWidget {
+ 			std::string txt = (data.find("<code") != std::string::npos || data.find("<html") != std::string::npos)
+ 			                ? dpHtmlToTxt(data, slug) : data;   // pages get scraped; a raw export .txt passes through
+ 			if (txt.empty() || txt.find('\n') == std::string::npos) {
++#ifdef USING_CARDINAL_NOT_RACK
++				async_dialog_message("No drum pattern grid found at that URL.");
++#else
+ 				osdialog_message(OSDIALOG_ERROR, OSDIALOG_OK, "No drum pattern grid found at that URL.");
++#endif
+ 				return;
+ 			}
+ 			std::string dir = asset::user("SignalFunctionSet/patterns");
+diff --git a/src/key.cpp b/src/key.cpp
+index 1c84ab4..8ed859d 100644
+--- a/src/key.cpp
++++ b/src/key.cpp
+@@ -1252,27 +1252,38 @@ struct KeyWidget : ModuleWidget {
+ 
+ 		menu->addChild(createMenuItem("Load Scala file (.scl)…",
+ 			m->scalaLoaded ? m->scalaName : "", [=]() {
++				auto scalaProcess = [m](char* path) {
++					if (!path) return;
++					KeyScale s;
++					std::string name;
++					if (keyLoadScala(path, s, name)) {
++						m->scala = s;
++						m->scalaName = name.empty() ? std::string("Scala") : name;
++						m->scalaPath = path;
++						m->scalaLoaded = true;
++						// Loading a file is a request to hear it.
++						m->params[Key::SCALE_PARAM].setValue((float)Key::SCALA_INDEX);
++						m->customMask = false;
++						m->rebuild();
++					}
++					else {
++#ifdef USING_CARDINAL_NOT_RACK
++						async_dialog_message("Could not read that as a Scala (.scl) file.");
++#else
++						osdialog_message(OSDIALOG_WARNING, OSDIALOG_OK,
++							"Could not read that as a Scala (.scl) file.");
++#endif
++					}
++					std::free(path);
++				};
++#ifdef USING_CARDINAL_NOT_RACK
++				async_dialog_filebrowser(false, nullptr, nullptr, "Load Scala file", scalaProcess);
++#else
+ 				osdialog_filters* f = osdialog_filters_parse("Scala scale:scl");
+ 				char* path = osdialog_file(OSDIALOG_OPEN, NULL, NULL, f);
+ 				osdialog_filters_free(f);
+-				if (!path) return;
+-				KeyScale s;
+-				std::string name;
+-				if (keyLoadScala(path, s, name)) {
+-					m->scala = s;
+-					m->scalaName = name.empty() ? std::string("Scala") : name;
+-					m->scalaPath = path;
+-					m->scalaLoaded = true;
+-					// Loading a file is a request to hear it.
+-					m->params[Key::SCALE_PARAM].setValue((float)Key::SCALA_INDEX);
+-					m->customMask = false;
+-					m->rebuild();
+-				}
+-				else {
+-					osdialog_message(OSDIALOG_WARNING, OSDIALOG_OK,
+-						"Could not read that as a Scala (.scl) file.");
+-				}
+-				std::free(path);
++				scalaProcess(path);
++#endif
+ 			}));
+ 		if (m->scalaLoaded) {
+ 			menu->addChild(createMenuLabel(string::f("   %d degrees, period %.1f cents",
+diff --git a/src/op_env.cpp b/src/op_env.cpp
+index aad6028..5cd3447 100644
+--- a/src/op_env.cpp
++++ b/src/op_env.cpp
+@@ -494,9 +494,15 @@ struct OpEnvWidget : ModuleWidget {
+ 		menu->addChild(new MenuSeparator);
+ 		menu->addChild(createMenuLabel("Banks"));
+ 		menu->addChild(createMenuItem("Load bank (.syx)…", "", [m]() {
++#ifdef USING_CARDINAL_NOT_RACK
++			async_dialog_filebrowser(false, nullptr, nullptr, "Load bank (.syx)", [m](char* path) {
++				if (path) { m->addBank(path); std::free(path); }
++			});
++#else
+ 			char* path = osdialog_file(OSDIALOG_OPEN, NULL, NULL,
+ 				osdialog_filters_parse(OPENV_SYX_FILTERS));
+ 			if (path) { m->addBank(path); std::free(path); }
++#endif
+ 		}));
+ 		for (int i = 0; i < (int) m->banks.size(); i++) {
+ 			std::string label = string::f("%d: %s", i + 1, m->banks[i].name.c_str());
+diff --git a/src/phase.cpp b/src/phase.cpp
+index 07e11ac..fd598c2 100644
+--- a/src/phase.cpp
++++ b/src/phase.cpp
+@@ -850,7 +850,7 @@ struct Phase : Module {
+ 		}
+ 	}
+ 
+-#ifdef METAMODULE
++#if defined(METAMODULE)
+ 	void loadSampleDialog(bool isB) {
+ 		std::string dir = "";
+ 		if (isB && sampleB.loaded) {
+@@ -873,6 +873,26 @@ struct Phase : Module {
+ 			}
+ 		);
+ 	}
++#elif defined(USING_CARDINAL_NOT_RACK)
++	// Cardinal has no osdialog; file choice comes back asynchronously and
++	// without format filters (include/common.hpp async_dialog_filebrowser).
++	void loadSampleDialog(bool isB) {
++		std::string dir = "";
++		if (isB && sampleB.loaded) {
++			dir = system::getDirectory(sampleB.filePath);
++		} else if (!isB && sampleA.loaded) {
++			dir = system::getDirectory(sampleA.filePath);
++		}
++		async_dialog_filebrowser(false, nullptr, dir.empty() ? nullptr : dir.c_str(),
++			"Load sample", [this, isB](char* pathC) {
++				if (pathC) {
++					std::string path = pathC;
++					std::free(pathC);
++					loadSampleFromPath(path, isB);
++				}
++			}
++		);
++	}
+ #else
+ 	void loadSampleDialog(bool isB) {
+ 		osdialog_filters* filters = osdialog_filters_parse(PHASE_WAV_FILTERS);
+@@ -1078,7 +1098,7 @@ struct Phase : Module {
+ 		return path;
+ 	}
+ 
+-#ifdef METAMODULE
++#if defined(METAMODULE)
+ 	void saveStereoWavDialog() {
+ 		osdialog_filters* filters = osdialog_filters_parse(PHASE_WAV_FILTERS);
+ 		async_osdialog_file(OSDIALOG_SAVE, NULL, "phase-buffers.wav", filters,
+@@ -1092,6 +1112,18 @@ struct Phase : Module {
+ 			}
+ 		);
+ 	}
++#elif defined(USING_CARDINAL_NOT_RACK)
++	void saveStereoWavDialog() {
++		async_dialog_filebrowser(true, "phase-buffers.wav", nullptr, "Save wav",
++			[this](char* pathC) {
++				if (pathC) {
++					std::string path = ensureWavExt(pathC);
++					std::free(pathC);
++					saveStereoWav(path);
++				}
++			}
++		);
++	}
+ #else
+ 	void saveStereoWavDialog() {
+ 		osdialog_filters* filters = osdialog_filters_parse(PHASE_WAV_FILTERS);
+diff --git a/src/play.cpp b/src/play.cpp
+index b3a342b..33fc0ee 100644
+--- a/src/play.cpp
++++ b/src/play.cpp
+@@ -1294,9 +1294,16 @@ void PlayDisplay::step() {
+ 	else if (module->curInstrument >= listScroll + vis) listScroll = module->curInstrument - vis + 1;
+ 	if (loadReq) {
+ 		loadReq = false;
++#ifdef USING_CARDINAL_NOT_RACK
++		Play* m = module;
++		async_dialog_filebrowser(false, nullptr, nullptr, "Load instrument", [m](char* p) {
++			if (p) { m->loadInstrument(p); std::free(p); }
++		});
++#else
+ 		char* path = osdialog_file(OSDIALOG_OPEN, NULL, NULL,
+ 			osdialog_filters_parse("Instrument:sfz,dspreset,dsbundle,dslibrary"));
+ 		if (path) { module->loadInstrument(path); std::free(path); }
++#endif
+ 	}
+ }
+ 
+@@ -1388,14 +1395,28 @@ struct PlayWidget : ModuleWidget {
+ 		if (!m) return;
+ 		menu->addChild(new MenuSeparator);
+ 		menu->addChild(createMenuItem("Load instrument (.sfz / .dspreset / .dsbundle / .dslibrary)…", "", [m]() {
++#ifdef USING_CARDINAL_NOT_RACK
++			async_dialog_filebrowser(false, nullptr, nullptr, "Load instrument", [m](char* p) {
++				if (p) { m->loadInstrument(p); std::free(p); }
++			});
++#else
+ 			char* p = osdialog_file(OSDIALOG_OPEN, NULL, NULL, osdialog_filters_parse("Instrument:sfz,dspreset,dsbundle,dslibrary"));
+ 			if (p) { m->loadInstrument(p); std::free(p); }
++#endif
+ 		}));
+ 		// Fallback for when .dsbundle is a plain folder (not a registered package):
+ 		// pick the bundle folder directly.
+ 		menu->addChild(createMenuItem("Load DecentSampler bundle (folder)…", "", [m]() {
++#ifdef USING_CARDINAL_NOT_RACK
++			// No directory picker in Cardinal's async file browser: choose any
++			// file inside the bundle folder and use its directory.
++			async_dialog_filebrowser(false, nullptr, nullptr, "Load DecentSampler bundle", [m](char* p) {
++				if (p) { m->loadInstrument(system::getDirectory(p)); std::free(p); }
++			});
++#else
+ 			char* p = osdialog_file(OSDIALOG_OPEN_DIR, NULL, NULL, NULL);
+ 			if (p) { m->loadInstrument(p); std::free(p); }
++#endif
+ 		}));
+ 		for (int i = 0; i < (int)m->instruments.size(); i++) {
+ 			std::string label = string::f("%d: %s", i + 1, m->instruments[i].name.c_str());
+diff --git a/src/record.cpp b/src/record.cpp
+index 3a9d3ff..be318ad 100644
+--- a/src/record.cpp
++++ b/src/record.cpp
+@@ -754,10 +754,20 @@ struct RecordWidget : ModuleWidget {
+ 		if (!m) return;
+ 		if (m->startReq == 1) {
+ 			m->startReq = 0;
++#ifdef USING_CARDINAL_NOT_RACK
++			if (m->destDir.empty()) {
++				// No directory picker: pick the recording file, use its folder.
++				async_dialog_filebrowser(true, "recording", nullptr, "Set destination folder", [m](char* d) {
++					if (d) { m->destDir = system::getDirectory(d); std::free(d); m->startPlan(true); }
++				});
++				return;
++			}
++#else
+ 			if (m->destDir.empty()) {
+ 				char* dir = osdialog_file(OSDIALOG_OPEN_DIR, NULL, NULL, NULL);
+ 				if (dir) { m->destDir = dir; std::free(dir); } else return;
+ 			}
++#endif
+ 			m->startPlan(true);
+ 		} else if (m->startReq == 2) { m->startReq = 0; m->startPlan(false); }
+ 		else if (m->startReq == 3) { m->startReq = 0; m->startCalibrate(); }
+@@ -768,11 +778,25 @@ struct RecordWidget : ModuleWidget {
+ 		Record* m = dynamic_cast<Record*>(module);
+ 		if (!m) return;
+ 		menu->addChild(new MenuSeparator);
++#ifdef USING_CARDINAL_NOT_RACK
++		menu->addChild(createMenuItem("Set destination folder…", m->destDir,
++			[m]() {
++				// No directory picker: pick the recording file, use its folder.
++				async_dialog_filebrowser(true, "recording", nullptr, "Set destination folder", [m](char* d) {
++					if (d) { m->destDir = system::getDirectory(d); std::free(d); }
++				});
++			}));
++		menu->addChild(createMenuItem("Instrument name…", m->instrument,
++			[m]() { async_dialog_text_input("Instrument name", m->instrument.c_str(), [m](char* s) {
++				if (s) { if (*s) m->instrument = s; std::free(s); }
++			}); }));
++#else
+ 		menu->addChild(createMenuItem("Set destination folder…", m->destDir,
+ 			[m]() { char* d = osdialog_file(OSDIALOG_OPEN_DIR, NULL, NULL, NULL); if (d) { m->destDir = d; std::free(d); } }));
+ 		menu->addChild(createMenuItem("Instrument name…", m->instrument,
+ 			[m]() { char* s = osdialog_prompt(OSDIALOG_INFO, "Instrument name", m->instrument.c_str());
+ 			        if (s) { if (*s) m->instrument = s; std::free(s); } }));
++#endif
+ 		if (!m->lastOut.empty())
+ 			menu->addChild(createMenuLabel(string::f("Last: %d files → %s", m->lastCount, m->lastOut.c_str())));
+ 		menu->addChild(new MenuSeparator);
+diff --git a/src/spool.cpp b/src/spool.cpp
+index b5869d2..3f6eda6 100644
+--- a/src/spool.cpp
++++ b/src/spool.cpp
+@@ -1336,10 +1336,16 @@ struct SpoolWidget : ModuleWidget {
+ 				string::f("Load tape %d…", i + 1),
+ 				m->tape[i].len ? m->tape[i].name : "empty",
+ 				[=]() {
++#ifdef USING_CARDINAL_NOT_RACK
++					async_dialog_filebrowser(false, nullptr, nullptr, "Load tape", [m, idx](char* p) {
++						if (p) { m->loadTape(idx, std::string(p)); std::free(p); }
++					});
++#else
+ 					char* p = osdialog_file(OSDIALOG_OPEN, NULL, NULL, NULL);
+ 					if (!p) return;
+ 					m->loadTape(idx, std::string(p));
+ 					std::free(p);
++#endif
+ 				}));
+ 		}
+ 		menu->addChild(createMenuItem("Rewind all tapes", "", [=]() {
+diff --git a/src/strata.cpp b/src/strata.cpp
+index 9f50fbd..df4bfb5 100644
+--- a/src/strata.cpp
++++ b/src/strata.cpp
+@@ -1965,12 +1965,31 @@ struct StrataWidget : ModuleWidget {
+ 		if (!m) return;
+ 		menu->addChild(new MenuSeparator);
+ 		menu->addChild(createMenuItem("Load table...", "", [=]() {
++#ifdef USING_CARDINAL_NOT_RACK
++			async_dialog_filebrowser(false, nullptr, nullptr, "Load table", [m](char* p) {
++				if (p) { m->load({std::string(p)}); std::free(p); }
++			});
++#else
+ 			osdialog_filters* f = osdialog_filters_parse("WAV:wav,WAV");
+ 			char* p = osdialog_file(OSDIALOG_OPEN, NULL, NULL, f);
+ 			osdialog_filters_free(f);
+ 			if (p) { m->load({p}); std::free(p); }
++#endif
+ 		}));
+ 		menu->addChild(createMenuItem("Load a folder of tables as layers...", "", [=]() {
++#ifdef USING_CARDINAL_NOT_RACK
++			// No directory picker: pick any file in the folder, use its directory.
++			async_dialog_filebrowser(false, nullptr, nullptr, "Load a folder of tables", [m](char* p) {
++				if (!p) return;
++				std::string dir = system::getDirectory(p);
++				std::free(p);
++				std::vector<std::string> files;
++				for (const std::string& e : system::getEntries(dir))
++					if (string::lowercase(system::getExtension(e)) == ".wav") files.push_back(e);
++				std::sort(files.begin(), files.end());   // name order, bottom layer first
++				if (!files.empty()) m->load(files);
++			});
++#else
+ 			char* p = osdialog_file(OSDIALOG_OPEN_DIR, NULL, NULL, NULL);
+ 			if (!p) return;
+ 			std::vector<std::string> files;
+@@ -1979,6 +1998,7 @@ struct StrataWidget : ModuleWidget {
+ 			std::free(p);
+ 			std::sort(files.begin(), files.end());   // name order, bottom layer first
+ 			if (!files.empty()) m->load(files);
++#endif
+ 		}));
+ 		menu->addChild(createSubmenuItem("Factory tables", "", [=](Menu* sub) {
+ 			sub->addChild(createMenuItem("1D: sixteen shapes in a row", "", [=]() { m->loadFactory(1); }));
+@@ -1988,10 +2008,16 @@ struct StrataWidget : ModuleWidget {
+ 		// a layer on top of the table in force: needs the same grid
+ 		menu->addChild(createSubmenuItem("Add a layer on top", "", [=](Menu* sub) {
+ 			sub->addChild(createMenuItem("From a WAV...", "", [=]() {
++#ifdef USING_CARDINAL_NOT_RACK
++				async_dialog_filebrowser(false, nullptr, nullptr, "Add a layer", [m](char* p) {
++					if (p) { m->addLayer(std::string(p)); std::free(p); }
++				});
++#else
+ 				osdialog_filters* f = osdialog_filters_parse("WAV:wav,WAV");
+ 				char* p = osdialog_file(OSDIALOG_OPEN, NULL, NULL, f);
+ 				osdialog_filters_free(f);
+ 				if (p) { m->addLayer(p); std::free(p); }
++#endif
+ 			}));
+ 			sub->addChild(new MenuSeparator);
+ 			sub->addChild(createMenuLabel("Factory layers (8 x 8)"));
