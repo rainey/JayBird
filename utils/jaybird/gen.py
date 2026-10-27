@@ -87,7 +87,8 @@ def load_plugin_info(path):
                 warn(f"{path}: plugin.json parse error: {e}")
                 return None
             slug = j.get("slug") or os.path.basename(path)
-            modules = [(m.get("slug"), m.get("name") or m.get("slug"))
+            modules = [((m.get("slug") or "").strip(),
+                        (m.get("name") or m.get("slug") or "").strip())
                        for m in j.get("modules", []) if m.get("slug")]
             return slug, modules
     return None
@@ -126,6 +127,16 @@ def scan_model_slugs(path, prefer=()):
     matches = []          # (ident, slug_or_None, const_name, file_consts)
     consts = {}           # global constant map
 
+    # Template-module idiom: a .cpp defines both the model symbol and the
+    # slug via placeholder macros, then includes a shared template header
+    # that expands them (e.g. #define MODEL_NAME modelSequencer16,
+    # #define MODULE_NAME "Sequencer16", #include "SequencerTemplate.hpp").
+    # Associate the pair per file; the placeholder identifiers themselves
+    # are never real registration names.
+    template_model_re = re.compile(r'#define\s+MODEL_NAME\s+(\w+)')
+    template_slug_re = re.compile(r'#define\s+MODULE_NAME\s+"([^"]+)"')
+    PLACEHOLDER_IDENTS = ("MODEL_NAME", "MODULE_NAME", "WIDGET_NAME")
+
     for root, dirs, files in os.walk(plugin_dir):
         dirs[:] = [d for d in dirs if d not in ("dep", "libs", ".git")]
         for fn in files:
@@ -143,6 +154,10 @@ def scan_model_slugs(path, prefer=()):
                     fconsts.setdefault(m.group(1), m.group(2))
             consts.update(fconsts)
 
+            tm, ts = template_model_re.search(text), template_slug_re.search(text)
+            if tm and ts:
+                matches.append((tm.group(1).split("::")[-1], ts.group(1), None, fconsts))
+
             for m in literal_re.finditer(text):
                 matches.append((m.group(1).split("::")[-1], m.group(2), None, fconsts))
             for m in const_re.finditer(text):
@@ -150,6 +165,8 @@ def scan_model_slugs(path, prefer=()):
 
     out = {}
     for ident, slug, cname, fconsts in matches:
+        if ident in PLACEHOLDER_IDENTS:
+            continue
         if slug is None and cname is not None:
             # same-file definition first, then tree-wide
             slug = fconsts.get(cname) or consts.get(cname)

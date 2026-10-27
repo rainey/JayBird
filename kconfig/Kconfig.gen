@@ -2034,6 +2034,567 @@ config MOD_COMPUTERSCARE_COMPUTERSCARE_BLANK_EXPANDER
 	depends on PLUG_COMPUTERSCARE
 endif
 endmenu
+menu "CountModula (CountModula)"
+	comment "code: GPL-3.0-only  artwork: GPL-3.0-only"
+config PLUG_COUNTMODULA
+	bool "CountModula"
+	default y
+	depends on ALLOW_GPL3_ONLY
+if PLUG_COUNTMODULA
+config MOD_COUNTMODULA_ANALOGUESHIFTREGISTER
+	bool "Analogue Shift Register"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_ARPEGGIATOR
+	bool "Super Arpeggiator"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_ATTENUATOR
+	bool "Attenuator"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_ATTENUVERTER
+	bool "Attenuverter"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_BARGRAPH
+	bool "Bar Graph"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_BASICSEQUENCER8
+	bool "Basic 8 Step Sequencer"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_BINARYCOMPARATOR
+	bool "Binary Comparator"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_BINARYSEQUENCER
+	bool "Binary Sequencer"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_BINARYSEQUENCERPLUS
+	bool "Binary Sequencer Plus"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_BLANK12HP
+	bool "Blank Panel - 12HP"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_BLANK16HP
+	bool "Blank Panel - 16HP"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_BLANK20HP
+	bool "Blank Panel - 20HP"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_BLANK24HP
+	bool "Blank Panel - 24HP"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_BLANK2HP
+	bool "Blank Panel - 2HP"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_BLANK4HP
+	bool "Blank Panel - 4HP"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_BLANK8HP
+	bool "Blank Panel - 8HP"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_BOOLEANAND
+	bool "Boolean AND Gate"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_BOOLEANOR
+	bool "Boolean OR Gate"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_BOOLEANVCNOT
+	bool "Boolean VC Inverter"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_BOOLEANXOR
+	bool "Boolean XOR Gate"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_BREAKOUT
+	bool "Breakout"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_BURSTGENERATOR
+	bool "Burst Generator"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_BURSTGENERATOR64
+	bool "Burst Generator 64"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_BUSROUTE
+	bool "Bus Route"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_BUSROUTE2
+	bool "Bus Route"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_CAROUSEL
+	bool "Carousel Rotating Router"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_CHANCES
+	bool "Chances - bernoulli gate"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_CLOCKDIVIDER
+	bool "Clock Divider"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_CLOCKEDRANDOMGATEEXPANDERCV
+	bool "Clocked Random Gate CV Expander"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_CLOCKEDRANDOMGATEEXPANDERLOG
+	bool "Clocked Random Gate Logic Expander"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_CLOCKEDRANDOMGATES
+	bool "Clocked Random Gates"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_COMPARATOR
+	bool "Comparator"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_CVSPREADER
+	bool "CV Spreader"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_GATESEQUENCER16B
+	bool "12 x 16 Gate Sequencer"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_EUCLID
+	bool "Euclidean Sequencer"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_EUCLIDEXPANDERCV
+	bool "Euclidean Sequencer Expander"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_EVENTARRANGER
+	bool "Event Arranger"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_EVENTTIMER
+	bool "Countdown"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_EVENTTIMER2
+	bool "Countdown 5"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_FADE
+	bool "Fade-in/Fade-out and Record Controller"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_FADEEXPANDER
+	bool "Fade-in/Fade-out Expander"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_G2T
+	bool "G2T - Gate to Trigger Converter"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_GATEDCOMPARATOR
+	bool "Gated Comparator"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_GATEDELAY
+	bool "Gate Delay"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_GATEDELAYMT
+	bool "Tapped Gate Delay"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_GATEMODIFIER
+	bool "Gate Modifier"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_GATESEQUENCER16
+	bool "8 x 16 Gate Sequencer"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_GATESEQUENCER8
+	bool "8 x 8 Gate Sequencer"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_HYPERMANIACALLFO
+	bool "Hyper Maniacal LFO"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_HYPERMANIACALLFOEXPANDER
+	bool "Hyper Maniacal LFO Output Expander"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_LIGHTSTRIP
+	bool "Light Strip"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_MANGLER
+	bool "Mangler"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_MANIFOLD
+	bool "Signal Manifold"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_MANUALCV
+	bool "Manual CV Generator"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_MANUALCV2
+	bool "Polyphonic Manual CV Generator"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_MANUALGATE
+	bool "Manual Gate"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_MASTERRESET
+	bool "Master Reset Controller"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_MATRIXCOMBINER
+	bool "Matrix Combiner"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_MATRIXMIXER
+	bool "Matrix Mixer"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_MEGALOMANIAC
+	bool "Megalomaniac - Hyper Maniacal LFO CV Expander"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_MINIMIX
+	bool "Mini Mix"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_MINIMUSMAXIMUS
+	bool "Minimus Maximus"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_MIXER
+	bool "Mixer"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_MORPHSHAPER
+	bool "Morph Shaper"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_MULT
+	bool "Multiple"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_MULTIPLEXER
+	bool "Multiplexer"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_MULTISTEPSEQUENCER
+	bool "Multi-step Sequencer"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_MUTE
+	bool "Mute"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_MUTE_IPLE
+	bool "Mute-iple"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_NIBBLETRIGGERSEQUENCER
+	bool "Nibble Trigger Sequencer"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_OCTETTRIGGERSEQUENCER
+	bool "Octet Trigger Sequencer"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_OCTETTRIGGERSEQUENCERCVEXPANDER
+	bool "Octet Trigger Sequencer CV Expander"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_OCTETTRIGGERSEQUENCERGATEEXPANDER
+	bool "Octet Trigger Sequencer Gate Expander"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_OFFSETGENERATOR
+	bool "Offset Generator"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_OSCILLOSCOPE
+	bool "Quad Trace Oscilloscope"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_PALETTE
+	bool "Cable Palette"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_POLYCHANCES
+	bool "Polyphonic Bernoulli Gate"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_POLYG2T
+	bool "gate to Trigger Converter"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_POLYGATEMODIFIER
+	bool "Poly Gate Modifier"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_POLYLOGIC
+	bool "Polyphonic Boolean Logic Processor"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_POLYMINMAX
+	bool "Polyphonic Min/Max"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_POLYMUTE
+	bool "Polyphonic Mute"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_POLYRHYTHMICGENERATOR
+	bool "Polyrhythmic Generator  (Deprecated - Do Not Use)"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_POLYRHYTHMICGENERATORMKII
+	bool "Polyrhythmic Generator MkII"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_POLYVCPOLARIZER
+	bool "Polyphonic VC Polarizer"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_POLYVCSWITCH
+	bool "Polyphonic Voltage Controlled Switch"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_RACKEARLEFT
+	bool "Left Hand Rack Ear"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_RACKEARRIGHT
+	bool "Right Hand Rack Ear"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_RANDOMACCESSSWITCH18
+	bool "Random Access Switch 1-8"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_RANDOMACCESSSWITCH81
+	bool "Random Access Switch 8-1"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_RECTIFIER
+	bool "Rectifier"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_SAMPLEANDHOLD
+	bool "Sample & Hold"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_SAMPLEANDHOLD2
+	bool "Super Sample & Hold"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_SEQUENCEENCODER
+	bool "4Bit Sequence Encoder"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_SEQUENCER16
+	bool "16 Step Sequencer"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_SEQUENCER64
+	bool "64 Step Sequencer"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_SEQUENCER8
+	bool "8 Step Sequencer"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_SEQUENCERCHANNEL16
+	bool "16 Step Sequencer Channel Expander"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_SEQUENCERCHANNEL8
+	bool "8 Step Sequencer Channel Expander"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_SEQUENCEREXPANDERCV8
+	bool "Sequencer CV Expander"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_SEQUENCEREXPANDERLOG8
+	bool "Gated Comparator Expander - Gate Logic"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_SEQUENCEREXPANDEROUT8
+	bool "Sequencer Output Expander"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_SEQUENCEREXPANDERRM8
+	bool "Gated Comparator Expander - Random Melody"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_SEQUENCEREXPANDERTRIG8
+	bool "Sequencer Trigger Expander"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_SEQUENCEREXPANDERTSG
+	bool "Trigger Sequencer Gate Expander"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_SEQUENCERGATES16
+	bool "16 Step Sequencer Gate Output Expander"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_SEQUENCERGATES8
+	bool "8 Step Sequencer Gate Output Expander"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_SEQUENCERTRIGGERS16
+	bool "16 Step Sequencer Trigger Output Expander"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_SEQUENCERTRIGGERS8
+	bool "8 Step Sequencer Trigger Output Expander"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_SHEPARDGENERATOR
+	bool "Shepard Generator"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_SHIFTREGISTER16
+	bool "16 Step Shift Register"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_SHIFTREGISTER32
+	bool "32 Step Shift Register"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_SINGLEDFLIPFLOP
+	bool "D Flip Flop"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_SINGLESRFLIPFLOP
+	bool "SR Flip Flop"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_SINGLETFLIPFLOP
+	bool "T Flip Flop"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_SLOPEDETECTOR
+	bool "Slope Detector"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_SRFLIPFLOP
+	bool "Dual SR Flip Flop"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_STACK
+	bool "CV Stack"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_STARTUPDELAY
+	bool "Startup Delay"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_STEPSEQUENCER8
+	bool "Dual 8 Step Sequencer"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_SUBHARMONICGENERATOR
+	bool "Sub Harmonic Generator"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_SWITCH16TO1
+	bool "Switch 16-1"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_SWITCH1TO16
+	bool "Switch 1-16"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_SWITCH1TO8
+	bool "Switch 1-8"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_SWITCH2
+	bool "Manual DPDT Switch"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_SWITCH3
+	bool "Manual 3 Input Switch"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_SWITCH4
+	bool "Manual 4 Input Switch"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_SWITCH8TO1
+	bool "Switch 8-1"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_TFLIPFLOP
+	bool "Dual T Flip Flop"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_TRIGGERSEQUENCER16
+	bool "Trigger Sequencer (16 Step)"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_TRIGGERSEQUENCER8
+	bool "Trigger Sequencer (8 Step)"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_VCFREQUENCYDIVIDER
+	bool "Voltage Controlled Frequency Divider (Deprecated - Do Not Use)"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_VCFREQUENCYDIVIDERMKII
+	bool "Voltage Controlled Frequency Divider MkII"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_VCPOLARIZER
+	bool "Voltage Controlled Polarizer"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_VCPULSEDIVIDER
+	bool "Voltage Controlled Pulse Divider"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_VOLTAGECONTROLLEDSWITCH
+	bool "Voltage Controlled Switch"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_VOLTAGEINVERTER
+	bool "Voltage Inverter"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+config MOD_COUNTMODULA_VOLTAGESCALER
+	bool "Voltage Scaler"
+	default PLUG_COUNTMODULA
+	depends on PLUG_COUNTMODULA
+endif
+endmenu
 menu "DHE-Modules (DHE-Modules)"
 	comment "code: MIT  artwork: MIT"
 config PLUG_DHE_MODULES

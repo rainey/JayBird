@@ -125,6 +125,16 @@ plugins/Computerscare:
   # per-file artwork exceptions listed in docs/LICENSES.md: 2
   phone_home: null  # TODO
 
+# plugins/CountModula
+# Code: GPL-3.0-only (LICENSE.txt). LICENSE-DIST.txt carries embedded
+# third-party code exceptions (Befaco Slew: BSD-3-Clause, stoermelder
+# hotkey: GPL-3.0). Panels/logo: copyright, "may not be used in
+# derivative works" (README.md) — needs the same review as other
+# 'Custom' entries.
+plugins/CountModula:
+  artwork_license: 'Custom'
+  phone_home: false
+
 # plugins/DHE-Modules
 plugins/DHE-Modules:
   artwork_license: 'MIT'

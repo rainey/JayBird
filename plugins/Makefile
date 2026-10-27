@@ -687,6 +687,15 @@ PLUGIN_FILES += $(filter-out CVfunk/src/plugin.cpp,$(wildcard CVfunk/src/*.cpp))
 CVFUNK_CUSTOM = Steps Node
 
 # --------------------------------------------------------------
+# CountModula
+
+PLUGIN_FILES += $(wildcard CountModula/src/*.cpp)
+PLUGIN_FILES += $(wildcard CountModula/src/modules/*.cpp)
+
+# modules/types which are present in other plugins
+COUNTMODULA_CUSTOM = Arpeggiator BusRoute Comparator Fade GateDelay Mixer Mult Stack
+
+# --------------------------------------------------------------
 # dBiz
 
 PLUGIN_FILES += $(filter-out dBiz/src/plugin.cpp,$(wildcard dBiz/src/*.cpp))
@@ -2360,6 +2369,16 @@ $(BUILD_DIR)/CVfunk/src/%.cpp.o: CVfunk/src/%.cpp
 	$(SILENT)$(CXX) $< $(BUILD_CXX_FLAGS) -c -o $@ \
 		$(foreach m,$(CVFUNK_CUSTOM),$(call custom_module_names,$(m),CVfunk)) \
 		-DpluginInstance=pluginInstance__CVfunk
+
+$(BUILD_DIR)/CountModula/%.cpp.o: CountModula/%.cpp
+	-@mkdir -p "$(shell dirname $(BUILD_DIR)/$<)"
+	@echo "Compiling $<"
+	$(SILENT)$(CXX) $< $(BUILD_CXX_FLAGS) -c -o $@ \
+		$(foreach m,$(COUNTMODULA_CUSTOM),$(call custom_module_names,$(m),CountModula)) \
+		-DdefaultTheme=CountModuladefaultTheme \
+		-DprevDefaultTheme=CountModulaprevDefaultTheme \
+		-DpluginInstance=pluginInstance__CountModula \
+		-Dinit=init__CountModula
 
 $(BUILD_DIR)/ChowDSP/%.cpp.o: ChowDSP/%.cpp
 	-@mkdir -p "$(shell dirname $(BUILD_DIR)/$<)"
