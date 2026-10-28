@@ -688,9 +688,17 @@ CVFUNK_CUSTOM = Steps Node
 
 # --------------------------------------------------------------
 # CountModula
+#
+# CountModula.cpp is the plugin's registration file (init + pluginInstance);
+# it is excluded like every other plugin's, and the non-registration parts
+# it carries (theme globals, settings helpers, expander positioning) are
+# provided by the repo-owned CountModula-shim.cpp. src/components/*.cpp
+# defines the STD_HALF_ROWS* helpers the modules reference.
 
-PLUGIN_FILES += $(wildcard CountModula/src/*.cpp)
+PLUGIN_FILES += $(filter-out CountModula/src/CountModula.cpp,$(wildcard CountModula/src/*.cpp))
 PLUGIN_FILES += $(wildcard CountModula/src/modules/*.cpp)
+PLUGIN_FILES += $(wildcard CountModula/src/components/*.cpp)
+PLUGIN_FILES += CountModula-shim.cpp
 
 # modules/types which are present in other plugins
 COUNTMODULA_CUSTOM = Arpeggiator BusRoute Comparator Fade GateDelay Mixer Mult Stack
@@ -2427,8 +2435,21 @@ $(BUILD_DIR)/CountModula/%.cpp.o: CountModula/%.cpp
 		$(foreach m,$(COUNTMODULA_CUSTOM),$(call custom_module_names,$(m),CountModula)) \
 		-DdefaultTheme=CountModuladefaultTheme \
 		-DprevDefaultTheme=CountModulaprevDefaultTheme \
-		-DpluginInstance=pluginInstance__CountModula \
-		-Dinit=init__CountModula
+		-DpluginInstance=pluginInstance__CountModula
+
+# NOTE: no -Dinit=... for CountModula: its registration file is excluded, and
+# a blanket init rename breaks under GCC 16 (it also renames
+# std::basic_ios::init called from libstdc++ headers, leaving undefined
+# init__CountModula references at the final link).
+
+$(BUILD_DIR)/CountModula-shim.cpp.o: CountModula-shim.cpp
+	-@mkdir -p "$(shell dirname $(BUILD_DIR)/$<)"
+	@echo "Compiling $<"
+	$(SILENT)$(CXX) $< $(BUILD_CXX_FLAGS) -c -o $@ \
+		-ICountModula/src \
+		-DdefaultTheme=CountModuladefaultTheme \
+		-DprevDefaultTheme=CountModulaprevDefaultTheme \
+		-DpluginInstance=pluginInstance__CountModula
 
 $(BUILD_DIR)/ChowDSP/%.cpp.o: ChowDSP/%.cpp
 	-@mkdir -p "$(shell dirname $(BUILD_DIR)/$<)"
