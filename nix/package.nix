@@ -10,6 +10,7 @@
 {
   lib,
   stdenv,
+  writeText,
   alsa-lib,
   carla,
   ccache,
@@ -32,6 +33,8 @@
   libsamplerate,
   libsndfile,
   makeWrapper,
+  mesa,
+  pipewire,
   pkg-config,
   python3,
   speexdsp,
@@ -41,6 +44,40 @@
   prefetchedDeps,
   configPath ? null,
   headless ? false,
+
+  # JACK client implementation exposed to the runtime dlopen (see note at
+  # wrapProgram). Compile-time always uses libjack2's headers/jack.pc:
+  # pipewire.jack ships no jack.pc, and libjack2's is API-compatible for
+  # the bridge's dlsym'd functions.
+  #   "pipewire" (default) — nix closure's pipewire.jack client
+  #     (hermetic: works on any host running a pipewire daemon).
+  #   "jack2" — nix closure's libjack2 client (hosts running jackd).
+  #   "host" — no client lib in the closure; dlopen("libjack.so.0")
+  #     resolves through the host's own dirs (probing pipewire-jack's
+  #     private dir first, then the host default paths). Non-hermetic by
+  #     definition: guaranteed server/client pairing, but depends on host
+  #     layout.
+  jackClient ? "pipewire",
+
+  # OpenGL driver stack on LD_LIBRARY_PATH for GLVND's runtime
+  # dlopen("libGLX_mesa.so.0")/("libEGL_mesa.so.0"). The binary links nix
+  # libglvnd, whose vendor lookup searches only LD_LIBRARY_PATH + nix
+  # store RUNPATHs + nix glibc — the HOST's vendor lib (/usr/lib on Arch,
+  # /run/opengl-driver on NixOS) is invisible to a nix binary, so on
+  # non-NixOS hosts puglRealize fails with an empty FBConfig list
+  # ("Failed to realize Pugl view" / "Failed to create NanoVG context").
+  #   "mesa" (default) — closure's mesa.drivers (libGLX_mesa + DRI
+  #     drivers). Hermetic; kernel/drm API coupling is stable. Correct
+  #     for AMD/Intel hosts.
+  #   "host" — nothing from the closure; a runtime shim dir (created by
+  #     a sourced script via makeWrapper --run) exposes the HOST's GLX/
+  #     EGL vendor lib + private deps (nvidia glcore/glsi/..., mesa
+  #     libgallium) through symlinks, without exposing /usr/lib
+  #     wholesale. Needed for proprietary-NVIDIA hosts: glvnd there must
+  #     load libGLX_nvidia, which the host driver ships. Also fine on
+  #     NixOS (/run/opengl-driver links are picked up; the loader path
+  #     already covers them) and on mesa hosts without nixpkgs-mesa.
+  glDriver ? "mesa",
 
   # Host-side ccache directory (e.g. "/var/tmp/jaybird-ccache"). When set,
   # compiles run through ccache; the directory must be exposed to the
@@ -161,7 +198,100 @@ stdenv.mkDerivation (finalAttrs: {
     "clap" # CLAP bundles
   ];
 
-  postInstall = ''
+  postInstall =
+    let
+      # DPF's jackbridge dlopen()s "libjack.so.0" at runtime — the binary
+      # has no libjack NEEDED entry. Choose the client implementation per
+      # jackClient:
+      #   pipewire — the closure's pipewire.jack client (speaks the
+      #     pipewire protocol; libjack2 kept as fallback). Hermetic.
+      #   jack2    — the closure's libjack2 (jackd wire protocol only).
+      #   host     — nothing from the closure; probe pipewire-jack's
+      #     private dir (/usr/lib/pipewire-0.3/jack on Arch, absent no-op
+      #     elsewhere) and let the host's default search
+      #     (/etc/ld.so.cache, /usr/lib) provide the rest. Non-hermetic.
+      # NEVER expose /usr/lib wholesale: system libs (e.g. an older
+      # libjansson) would shadow the closure's and break symbol-version
+      # lookups (JANSSON_4 not found).
+      jackLibPaths =
+        if jackClient == "pipewire" then
+          [ pipewire.jack libjack2 ]
+        else if jackClient == "jack2" then
+          [ libjack2 ]
+        else if jackClient == "host" then
+          [ ]
+        else
+          throw "jackClient must be \"pipewire\", \"jack2\" or \"host\"";
+      # Flag list built in nix (not bash string interpolation) so empty
+      # modes can never leave a dangling backslash-continuation.
+      # makeLibraryPath appends "/lib" itself — do NOT append manually
+      # (produces ".../lib/lib", a dir that never exists).
+      # host GL mode: glvnd must dlopen the HOST's vendor lib
+      # (libGLX_nvidia on nvidia hosts, libGLX_mesa elsewhere), but a nix
+      # binary's dlopen never sees /usr/lib (see glDriver comment above)
+      # and the vendor differs per host, so it cannot be vendored
+      # hermetically. A per-user shim dir of symlinks makes the host
+      # vendor + its private deps visible without exposing /usr/lib
+      # wholesale. Sourced via makeWrapper --run so the export reaches
+      # the wrapper env (make-wrapper.sh embeds --run commands verbatim
+      # in the wrapper shell).
+      glHostShim = ''
+        # Refresh symlinks on every start so driver updates are picked
+        # up. Missing globs stay literal and fail the [ -e ] test, so
+        # this is inert on hosts whose driver it does not match; a
+        # vendor-less host (headless) exports nothing.
+        _glshim="''${XDG_RUNTIME_DIR:-/tmp}/.jaybird-glvendor-$(id -u)"
+        mkdir -p "$_glshim" 2>/dev/null || return 0
+        _gldid=""
+        for _f in \
+          /usr/lib/libGLX_*.so.* \
+          /usr/lib/libEGL_*.so.* \
+          /usr/lib/libnvidia-*.so.* \
+          /usr/lib/libgallium*.so.* \
+          /usr/lib/libglapi.so.* \
+          /run/opengl-driver/lib/libGLX_*.so.* \
+          /run/opengl-driver/lib/libEGL_*.so.*
+        do
+          if [ -e "$_f" ]; then
+            ln -sf "$_f" "$_glshim/" && _gldid=1
+          fi
+        done
+        unset _f
+        if [ -n "$_gldid" ]; then
+          export LD_LIBRARY_PATH="$_glshim''${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+        fi
+        unset _gldid _glshim
+      '';
+      glLibPaths =
+        if glDriver == "mesa" then
+          [ mesa.drivers ]
+        else
+          [ ];
+      # host GL mode wrapper flags: source the shim script (a store
+      # file, interpolated at nix-eval time into the flag text) before
+      # the jack suffix flags — its export prepends the shim dir to
+      # LD_LIBRARY_PATH ahead of everything else.
+      glFlags =
+        if glDriver == "mesa" then
+          [ ("--prefix LD_LIBRARY_PATH : "
+             + lib.makeLibraryPath glLibPaths) ]
+        else if glDriver == "host" then
+          [ (''--run "source ${glHostShimFile}"'') ]
+        else
+          throw "glDriver must be \"mesa\" or \"host\"";
+      jackFlags =
+        lib.optionals (jackClient == "host")
+          [ "--prefix LD_LIBRARY_PATH : /usr/lib/pipewire-0.3/jack" ]
+        ++ glFlags
+        ++ [ ("--suffix LD_LIBRARY_PATH : "
+             + lib.makeLibraryPath (jackLibPaths ++ [ alsa-lib ])) ];
+      glHostShimFile = writeText "jaybird-glhost-shim.sh" glHostShim;
+      wrap = bin: ''
+        wrapProgram $out/bin/${bin} \
+          ${lib.concatStringsSep " \\\n          " jackFlags}
+      '';
+    in
+    ''
     # Cardinal's install layout puts bundles in $out/lib/{lv2,vst,vst3,clap};
     # mirror nixpkgs cardinal's layout (single output compatible) but keep
     # our split outputs by moving from $out/lib/* into each output root.
@@ -186,10 +316,8 @@ stdenv.mkDerivation (finalAttrs: {
       fixup_bundle_resources "$bundle"
     done
 
-    wrapProgram $out/bin/Cardinal \
-      --suffix LD_LIBRARY_PATH : ${lib.makeLibraryPath [ libjack2 alsa-lib ]}
-    wrapProgram $out/bin/CardinalMini \
-      --suffix LD_LIBRARY_PATH : ${lib.makeLibraryPath [ libjack2 alsa-lib ]}
+    ${wrap "Cardinal"}
+    ${wrap "CardinalMini"}
 
     # developer test tool, like nixpkgs cardinal
     rm -f $out/bin/CardinalNative
@@ -198,6 +326,8 @@ stdenv.mkDerivation (finalAttrs: {
   passthru = {
     inherit configPath;
     inherit ccacheDir;
+    inherit jackClient;
+    inherit glDriver;
   };
 
   meta = with lib; {

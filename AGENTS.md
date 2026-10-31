@@ -342,6 +342,61 @@ These were each discovered the hard way; don't rediscover them:
   (`rm build/Cardinal/glfw.cpp.o` etc.) and rebuild it, or trust only the
   nix build.
 
+- **JACK client selection (jackClient).** The wrapped binaries have no
+  libjack NEEDED entry — DPF's jackbridge `dlopen("libjack.so.0")` at
+  runtime, so the wrapper's `LD_LIBRARY_PATH` decides which client a
+  host gets. nix's libjack2 only speaks the jackd protocol and cannot
+  connect to a pipewire daemon. `nix/package.nix` exposes
+  `jackClient ? "pipewire"`: `pipewire` (closure's `pipewire.jack`
+  client, libjack2 fallback — hermetic), `jack2`, `host` (no closure
+  libs; probes `/usr/lib/pipewire-0.3/jack` then the host's default
+  search). Flake: non-default variants get a suffix
+  (`.#full-ccache-host`, `.#full-ccache-jack2`). Gotchas: compile-time
+  must keep libjack2 in buildInputs (`pipewire.jack` ships no
+  `jack.pc`, and the `pkg-config --exists jack` probe gates
+  `-DHAVE_JACK`); never expose `/usr/lib` wholesale in LD_LIBRARY_PATH
+  (system libjansson shadows the closure's → `JANSSON_4` symbol-version
+  failure); `lib.makeLibraryPath` appends `/lib` itself — don't
+  hand-append it again (`…/lib/lib` never exists).
+
+- **GL vendor selection on non-NixOS hosts (glDriver).** The binary
+  links nix's libglvnd, and at runtime glvnd must
+  `dlopen("libGLX_mesa.so.0")` (the GLX vendor lib). A nix binary's
+  dlopen search is: LD_LIBRARY_PATH → nix store RUNPATHs → **nix
+  glibc's** system path — never `/usr/lib` and never `/etc/ld.so.cache`
+  (that cache is the host's; the nix loader consults its own glibc's).
+  So on a foreign distro the host Mesa vendor lib is invisible: the
+  vendor dlopen returns NULL (`__glXLookupVendorByName` — gdb proof),
+  `glXChooseFBConfig` returns an EMPTY list (no error anywhere in the
+  log), `puglRealize` fails → "Failed to realize Pugl view" /
+  "Failed to create NanoVG context" / "Shader shader/vert error" with a
+  suspiciously empty log. On NixOS this never bites because
+  `/run/opengl-driver` is in the loader path. Fix:
+  `nix/package.nix` exposes `glDriver ? "mesa"`:
+  - `mesa` (default): prepends closure's `mesa.drivers/lib` (ships
+    `libGLX_mesa`, `libEGL_mesa`, DRI drivers; hermetic; kernel/drm API
+    coupling is stable). Right choice for AMD/Intel hosts.
+  - `host`: sources a shim script (via `makeWrapper --run`, embedded
+    verbatim into the wrapper shell so its `export LD_LIBRARY_PATH`
+    propagates) that symlinks the HOST's vendor libs + private deps
+    (`/usr/lib/libGLX_*`, `libEGL_*`, `libnvidia-*`, `libgallium*`,
+    `libglapi*`, and `/run/opengl-driver/lib` equivalents) into
+    `$XDG_RUNTIME_DIR/.jaybird-glvendor-<uid>` and prepends that dir.
+    Symlink globs that match nothing are inert, so one build fits
+    nvidia/mesa/NixOS hosts. Required for proprietary-NVIDIA hosts:
+    glvnd there must claim `libGLX_nvidia.so.0`, which only the host
+    driver ships (mesa cannot drive the nvidia display — proven on the
+    GTX 1080 test box: mesa mode failed, host shim gave
+    `Renderer: NVIDIA GeForce GTX 1080`, OpenGL 4.6, zero failures,
+    zero manual env). Flake suffixes: `.#*-gl-host` (note: bare
+    `.#*-host` is the jackClient=host axis — `-host` is jack,
+    `-gl-host` is GL). Debugging gotchas if this ever
+    recurs: nix store libs are stripped — use pending breakpoints after
+    `XOpenDisplay` resolves, and NEVER trust breakpoints on the
+    executable's PLT (full RELRO/BIND_NOW bypasses them → they never
+    fire); `LD_DEBUG=libs` is the fastest way to see the vendor dlopen's
+    actual search list.
+
 ## Useful commands
 
 ```sh

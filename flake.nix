@@ -56,10 +56,14 @@
       # (non-null) to emit `<name>-ccache` variants that compile through
       # ccache with a host-side cache directory.
       profilePackages =
-        { pkgs, src, deps, ccacheDir ? null }:
+        { pkgs, src, deps, ccacheDir ? null, jackClient ? "pipewire", glDriver ? "mesa" }:
         let
           inherit (pkgs) lib;
-          suffix = if ccacheDir == null then "" else "-ccache";
+          suffix =
+            (if ccacheDir == null then "" else "-ccache")
+            # non-default jack/gl clients get an explicit suffix
+            + (if jackClient == "pipewire" then "" else "-${jackClient}")
+            + (if glDriver == "mesa" then "" else "-gl-${glDriver}");
           configs = lib.filterAttrs (
             name: type: type == "regular" && lib.hasSuffix ".config" name
           ) (builtins.readDir ./kconfig/configs);
@@ -72,7 +76,7 @@
                 srcArg = src;
                 prefetchedDeps = deps;
                 configPath = ./kconfig/configs + "/${name}";
-                inherit ccacheDir;
+                inherit ccacheDir jackClient glDriver;
               }
             )
           ) configs
@@ -98,6 +102,27 @@
                     src = self-src.${system};
                     deps = prefetchDeps.${system};
                     ccacheDir = "/var/tmp/jaybird-ccache";
+                  }
+                  // profilePackages {
+                    inherit pkgs;
+                    src = self-src.${system};
+                    deps = prefetchDeps.${system};
+                    ccacheDir = "/var/tmp/jaybird-ccache";
+                    jackClient = "host";
+                  }
+                  // profilePackages {
+                    inherit pkgs;
+                    src = self-src.${system};
+                    deps = prefetchDeps.${system};
+                    ccacheDir = "/var/tmp/jaybird-ccache";
+                    glDriver = "host";
+                  }
+                  // profilePackages {
+                    inherit pkgs;
+                    src = self-src.${system};
+                    deps = prefetchDeps.${system};
+                    ccacheDir = "/var/tmp/jaybird-ccache";
+                    jackClient = "jack2";
                   }
       );
 
