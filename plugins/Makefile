@@ -710,6 +710,23 @@ DBIZ_CUSTOM  = Chord DarkDefaultItem Divider FourSeq FourSeqWidget OrangeLight V
 DBIZ_CUSTOM_PER_FILE = LERP MultiFilter Oscillator calcOutput sineOsc subBank
 
 # --------------------------------------------------------------
+# dbRackCsound
+# Mirrors upstream Makefile: src/*.cpp minus plugin.cpp (Cardinal registers
+# the models itself). v2.0.5 (1a1f0da), 4 modules. Upstream statically links
+# the vendored libcsound64.a + libsndfile.a (lib/linux/) into every plugin
+# bundle; in JayBird the plugin TUs only *reference* those symbols, so the
+# vendored archives are linked at the final Cardinal link instead — see the
+# dbRackCsound block in src/Makefile.cardinal.mk. The archive also needs
+# -lcurl (its corfiles.c.o uses libcurl) and system -lpthread -ldl.
+# INFO() in DBCSound.hpp comes from Rack's logger.hpp; no osdialog/MIDI/
+# network usage in the plugin's own src/. No symbol clashes (SMT, DBCsound,
+# MLED/MLEDM, MTextField, RND, TextRow, TrimbotWhite all unique).
+
+PLUGIN_FILES += $(filter-out dbRackCsound/src/plugin.cpp,$(wildcard dbRackCsound/src/*.cpp))
+
+DBRACKCSOUND_FLAGS = -IdbRackCsound/lib/linux/csound
+
+# --------------------------------------------------------------
 # DHE-Modules
 
 PLUGIN_FILES += $(filter-out DHE-Modules/src/plugin.cpp,$(wildcard DHE-Modules/src/modules/*/init.cpp))
@@ -2517,6 +2534,13 @@ $(BUILD_DIR)/dBiz/src/%.cpp.o: dBiz/src/%.cpp
 		$(foreach m,$(DBIZ_CUSTOM),$(call custom_module_names,$(m),dBiz)) \
 		$(foreach m,$(DBIZ_CUSTOM_PER_FILE),$(call custom_per_file_names,$(m),dBiz_$(shell basename -- $*))) \
 		-DpluginInstance=pluginInstance__dBiz
+
+$(BUILD_DIR)/dbRackCsound/%.cpp.o: dbRackCsound/%.cpp
+	-@mkdir -p "$(shell dirname $(BUILD_DIR)/$<)"
+	@echo "Compiling $<"
+	$(SILENT)$(CXX) $< $(BUILD_CXX_FLAGS) -c -o $@ \
+		$(DBRACKCSOUND_FLAGS) \
+		-DpluginInstance=pluginInstance__dbRackCsound
 
 $(BUILD_DIR)/DHE-Modules/src/%.cpp.o: DHE-Modules/src/%.cpp
 	-@mkdir -p "$(shell dirname $(BUILD_DIR)/$<)"

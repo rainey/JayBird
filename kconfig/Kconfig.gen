@@ -3438,7 +3438,348 @@ config PLUG_INFNOISE
 	bool "InfNoise"
 	default y
 	depends on ALLOW_NC_ARTWORK
-	# registration block not parseable; plugin-level switch only
+if PLUG_INFNOISE
+config MOD_INFNOISE_ADRENVELOPE
+	bool "ADR Envelope"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_ADSDRENVELOPE
+	bool "ADSDR Envelope"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_ARM3XY
+	bool "Arm 3 XY"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_AUTOSCALE4
+	bool "Auto-Scale 4"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_BERNOULLISWITCH
+	bool "Bernoulli Switch"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_BITSTOVALUE
+	bool "Bits-to-Value"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_CHAOS
+	bool "Chaos"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_CLAMP4
+	bool "Clamp 4"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_COMBINE
+	bool "Combine"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_CROSSFADESWITCH1TO4
+	bool "Cross-fade switch 1to4"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_CROSSFADESWITCH4TO1
+	bool "Cross-fade switch 4to1"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_CVTOGGLE8
+	bool "CV-Toggle 8"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_CVTOGT
+	bool "CV to Gate"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_CVTOGTTR8
+	bool "CV to Gate/Trigger 8"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_CXFADE1X2
+	bool "Cross-fade 1x2"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_CXFADE4X1
+	bool "Cross-fade 4x1"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_DELTA4
+	bool "Delta-4"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_ENVELOPEPHASEEXPANDER
+	bool "Envelope Phase Expander"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_FLIPFLOP
+	bool "Flip-Flop"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_FOLD
+	bool "Fold"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_INCDECOFFSET
+	bool "Increment/Decrement Offset"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_LCMP2
+	bool "Logic Comparator-2"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_LCMP6X2
+	bool "Logic Comparator-6x2"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_LFO1
+	bool "LFO1"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_MANCV8I
+	bool "Manuel CV 8 Mk I"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_MANCV8II
+	bool "Manuel CV 8 Mk II"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_MANGATE8
+	bool "Manuel Gate 8"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_MANMIX4I
+	bool "Manuel Mix 4 Mk I"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_MANMIX4II
+	bool "Manuel Mix 4 Mk II"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_MANMIX4ST
+	bool "Manuel Mix 4 Stereo"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_MANMUTE8
+	bool "Manuel Mute 8"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_MANPUSH2
+	bool "Manuel Push 2"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_MANTRGTCV
+	bool "Manuel Trigger, Gate and CV"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_MANTRIGGER8
+	bool "Manuel Trigger 8"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_MATRIXMIX4X4STEREO
+	bool "Matrix Mix 4x4 Stereo"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_MATRIXMIX5X5
+	bool "Matrix Mix 5x5"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_MERGE2X4
+	bool "Merge2x4"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_MERGEMULT4
+	bool "Merge/Mult-4"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_MULT2X4
+	bool "Mult2x4"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_MUTE2
+	bool "Mute 2"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_ONOFFSWITCH
+	bool "ON/OFF Switch"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_PATCH
+	bool "Patch"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_PHASEDRIVENLFO
+	bool "Phase-Driven LFO"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_POLYLCMP
+	bool "Poly-Logical Compare"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_POLYMERGE
+	bool "Poly-Merge"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_POLYOFFSET
+	bool "Poly-Offset"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_POLYQUAD
+	bool "Poly-Quad"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_POLYSCALE
+	bool "Poly-Scale"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_POLYSHUFFLE
+	bool "Poly-Shuffle"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_POLYSPLIT
+	bool "Poly-Split"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_POLYSTEREO
+	bool "Poly-Stereo"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_POLYTWEAKI
+	bool "Poly-Tweak Mk I"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_POLYTWEAKII
+	bool "Poly-Tweak Mk II"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_POLYVCMP
+	bool "Poly-Value Compare"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_RANDOM4
+	bool "Random-4"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_RANDOMCURVE
+	bool "Random Curve"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_RINGMOD3
+	bool "Ring Modulator 3"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_SAMPLEANDUPDATE
+	bool "Sample and Update"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_SHTH2
+	bool "S&H/T&H-2"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_SHTH2X4
+	bool "S&H/T&H-2x4"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_SIGN
+	bool "Sign"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_SIGN4I
+	bool "Sign4 Mk I"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_SIGN4II
+	bool "Sign4 Mk II"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_SLEW2
+	bool "Slew 2"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_SLEW4
+	bool "Slew 4"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_SLFO4SS
+	bool "Simple LFO4-ss"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_SLFO4ST
+	bool "Simple LFO4-st"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_SLOPEDETECTOR2
+	bool "Slope Detector 2"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_STEREOBALANCEPAN
+	bool "Stereo Balance/Pan"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_TINYLCMP2
+	bool "Tiny Logic Comparator-2"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_TLFO
+	bool "Tiny LFO"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_TURINGMACHINE
+	bool "Turing Machine"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_TWEAK2I
+	bool "Tweak-2 Mk I"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_TWEAK2II
+	bool "Tweak-2 Mk II"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_TWEAK4I
+	bool "Tweak-4 Mk I"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_TWEAK4II
+	bool "Tweak-4 Mk II"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_TWEAK8
+	bool "Tweak-8"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_VALUETOBITS
+	bool "Value-to-Bits"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_VCA2
+	bool "VCA-2"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_VCA4I
+	bool "VCA-4 Mk I"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_VCA4II
+	bool "VCA-4 Mk II"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_VCMP1
+	bool "Value Comparator-1"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_VCMP2I
+	bool "Value Comparator-2 Mk I"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_VCMP2II
+	bool "Value Comparator-2 Mk II"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+config MOD_INFNOISE_WAVESHAPER2
+	bool "Wave Shaper 2"
+	default PLUG_INFNOISE
+	depends on PLUG_INFNOISE
+endif
 endmenu
 menu "JW-Modules (JW-Modules)"
 	comment "code: BSD-3-Clause  artwork: BSD-3-Clause"
@@ -5813,6 +6154,30 @@ config MOD_DBIZ_DUALMATRIX
 	bool "DualMatrix"
 	default PLUG_DBIZ
 	depends on PLUG_DBIZ
+endif
+endmenu
+menu "dbRackCsound (dbRackCsound)"
+	comment "code: GPL-3.0-or-later  artwork: GPL-3.0-or-later"
+config PLUG_DBRACKCSOUND
+	bool "dbRackCsound"
+	default y
+if PLUG_DBRACKCSOUND
+config MOD_DBRACKCSOUND_CSOUNDMODULE
+	bool "CsoundModule"
+	default PLUG_DBRACKCSOUND
+	depends on PLUG_DBRACKCSOUND
+config MOD_DBRACKCSOUND_CSOUNDMODULE16
+	bool "CsoundModulePoly"
+	default PLUG_DBRACKCSOUND
+	depends on PLUG_DBRACKCSOUND
+config MOD_DBRACKCSOUND_CSOUNDMODULEFX
+	bool "CsoundModuleFX"
+	default PLUG_DBRACKCSOUND
+	depends on PLUG_DBRACKCSOUND
+config MOD_DBRACKCSOUND_CSOUNDMODULEFX16
+	bool "CsoundModuleFXPoly"
+	default PLUG_DBRACKCSOUND
+	depends on PLUG_DBRACKCSOUND
 endif
 endmenu
 menu "eightfold (eightfold)"

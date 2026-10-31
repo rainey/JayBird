@@ -403,6 +403,17 @@ plugins/dBiz:
   # per-file artwork exceptions listed in docs/LICENSES.md: 2
   phone_home: null  # TODO
 
+# plugins/dbRackCsound
+# Code: GPL-3.0-or-later (plugin.json/LICENSE). Artwork: same license
+# (plugin.json license covers the whole plugin; SVG panels + font under
+# res/). No network access in the plugin's src/ (grep: no curl/http/
+# sockets; DBCSound.hpp's INFO() is Rack's logger). The vendored Csound
+# static archive itself references libcurl (corfiles.c.o), but that is a
+# build-time library link, not module-initiated online access.
+plugins/dbRackCsound:
+  artwork_license: 'GPL-3.0-or-later'
+  phone_home: false
+
 # plugins/eightfold
 plugins/eightfold:
   artwork_license: 'GPL-3.0-or-later'

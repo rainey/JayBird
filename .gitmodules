@@ -284,3 +284,6 @@
 [submodule "plugins/InfNoise"]
 	path = plugins/InfNoise
 	url = https://github.com/pellelil/InfNoiseRack.git
+[submodule "plugins/dbRackCsound"]
+	path = plugins/dbRackCsound
+	url = https://github.com/docb/dbRackCsound.git

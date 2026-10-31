@@ -14,6 +14,7 @@
   carla,
   ccache,
   cmake,
+  curl,
   dbus,
   fftwFloat,
   file,
@@ -125,6 +126,7 @@ stdenv.mkDerivation (finalAttrs: {
 
   buildInputs = [
     alsa-lib
+    curl # dbRackCsound's vendored libcsound64.a references libcurl
     dbus
     fftwFloat
     freetype

@@ -407,6 +407,12 @@ extern Model* modelTestVCF;
 #undef modelFourSeq
 #undef modelVCA4
 
+// dbRackCsound
+extern Model* modelCsoundModule;
+extern Model* modelCsoundModule16;
+extern Model* modelCsoundModuleFX;
+extern Model* modelCsoundModuleFX16;
+
 // DHEModules
 // NOTE very unique way of handling init, needs special handling
 namespace dhe {
@@ -1036,6 +1042,7 @@ Plugin* pluginInstance__Computerscare;
 Plugin* pluginInstance__CVfunk;
 Plugin* pluginInstance__CountModula;
 Plugin* pluginInstance__dBiz;
+Plugin* pluginInstance__dbRackCsound;
 Plugin* pluginInstance__DHE;
 Plugin* pluginInstance__eightfold;
 Plugin* pluginInstance__EnigmaCurry;
@@ -2393,6 +2400,21 @@ static void initStatic__dBiz()
 #undef modelDivider
 #undef modelFourSeq
 #undef modelVCA4
+    }
+}
+
+static void initStatic__dbRackCsound()
+{
+    Plugin* const p = new Plugin;
+    pluginInstance__dbRackCsound = p;
+
+    const StaticPluginLoader spl(p, "dbRackCsound");
+    if (spl.ok())
+    {
+        p->addModel(modelCsoundModule);
+        p->addModel(modelCsoundModule16);
+        p->addModel(modelCsoundModuleFX);
+        p->addModel(modelCsoundModuleFX16);
     }
 }
 
@@ -4266,6 +4288,7 @@ void initStaticPlugins()
     initStatic__CVfunk();
     initStatic__CountModula();
     initStatic__dBiz();
+    initStatic__dbRackCsound();
     initStatic__DHE();
     initStatic__eightfold();
     initStatic__EnigmaCurry();

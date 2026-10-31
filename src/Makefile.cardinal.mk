@@ -138,6 +138,29 @@ RACK_EXTRA_LIBS += $(SURGE_DEP_PATH)/libs/sst/sst-plugininfra/libs/strnatcmp/lib
 RACK_EXTRA_LIBS += $(SURGE_DEP_PATH)/libs/sst/sst-plugininfra/libs/tinyxml/libtinyxml.a
 
 # --------------------------------------------------------------
+# dbRackCsound vendored static libraries
+
+# The dbRackCsound plugin's TUs (plugins.a) only *reference* Csound;
+# upstream links the vendored archives into every plugin bundle, JayBird
+# links them once at the final Cardinal link instead. libcsound64.a also
+# needs -lcurl (its corfiles.c.o uses libcurl) and system -lpthread/-ldl
+# (already on the link line via dpf). Vendored libsndfile.a is
+# self-contained. Linux-only: the plugin's upstream Makefile picks
+# per-platform lib/ subdirs, and JayBird only builds Linux.
+ifneq ($(MACOS)$(WINDOWS),true)
+RACK_EXTRA_LIBS += ../../plugins/dbRackCsound/lib/linux/libcsound64.a
+RACK_EXTRA_LIBS += ../../plugins/dbRackCsound/lib/linux/libsndfile.a
+# -lcurl must NOT go into RACK_EXTRA_LIBS: dpf uses that list both as
+# file prerequisites and link libs, and make's -lNAME prerequisite
+# search (VPATH + -L + /lib + /usr/lib) cannot resolve it inside the
+# nix sandbox (no /usr/lib), which silently kills the pattern rules
+# for DistrhoPluginMain_*.cpp.o. Keep it link-only (see
+# EXTRA_DSP_LIBS below; the nix cc-wrapper resolves -lcurl through
+# NIX_LDFLAGS at link time).
+DBRACKCSOUND_LINK_LIBS = -lcurl
+endif
+
+# --------------------------------------------------------------
 # Extra libraries to link against
 
 ifneq ($(CARDINAL_VARIANT),mini)
@@ -180,6 +203,8 @@ ifeq ($(MACOS),true)
 EXTRA_DSP_LIBS += -framework Accelerate -framework AppKit -framework AudioToolbox
 else ifeq ($(WINDOWS),true)
 EXTRA_DSP_LIBS += -lole32 -lshlwapi -luuid -lversion
+else
+EXTRA_DSP_LIBS += $(DBRACKCSOUND_LINK_LIBS)
 endif
 
 # --------------------------------------------------------------
