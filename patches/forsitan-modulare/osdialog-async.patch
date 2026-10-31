@@ -1,0 +1,145 @@
+diff --git a/src/limen.cpp b/src/limen.cpp
+index ebce180..f42d745 100644
+--- a/src/limen.cpp
++++ b/src/limen.cpp
+@@ -100,18 +100,21 @@ static std::string cmd_hello() {
+ }
+ 
+ static std::string cmd_list_plugins() {
++#ifdef USING_CARDINAL_NOT_RACK
++	// Cardinal's static plugin build does not expose rack::plugin::plugins
++	// (the plugin registry lives in Cardinal's core, not linked into
++	// plugins.a). Report an empty list rather than failing the build.
+ 	json_t* arr = json_array();
+-	for (plugin::Plugin* p : rack::plugin::plugins) {
+-		json_t* obj = json_object();
+-		json_object_set_new(obj, "slug",    json_string(p->slug.c_str()));
+-		json_object_set_new(obj, "name",    json_string(p->name.c_str()));
+-		json_object_set_new(obj, "version", json_string(p->version.c_str()));
+-		json_array_append_new(arr, obj);
+-	}
+ 	return ok_response(arr);
++#endif
+ }
+ 
+ static std::string cmd_list_models(const std::string& pluginFilter = "") {
++#ifdef USING_CARDINAL_NOT_RACK
++	// see cmd_list_plugins: no plugin registry in Cardinal's static build
++	json_t* arr = json_array();
++	return ok_response(arr);
++#else
+ 	json_t* arr = json_array();
+ 	for (plugin::Plugin* p : rack::plugin::plugins) {
+ 		if (!pluginFilter.empty() && p->slug != pluginFilter) continue;
+@@ -125,6 +128,7 @@ static std::string cmd_list_models(const std::string& pluginFilter = "") {
+ 		}
+ 	}
+ 	return ok_response(arr);
++#endif
+ }
+ 
+ // Rack grid coordinates: x counts HP columns, y counts rack rows, both
+@@ -705,6 +709,12 @@ static std::string dispatch_req(json_t* req, Limen* limen, int depth) {
+ 			if (mode_j && json_is_string(mode_j))
+ 				mode = json_string_value(mode_j);
+ 			result = limen->runOnMainThread([plugSlug, modelSlug, placed, x, y, mode]() -> std::string {
++#ifdef USING_CARDINAL_NOT_RACK
++				// rack::plugin::getPlugin is not available in Cardinal's
++				// static build (the registry is in Cardinal core).
++				(void)plugSlug; (void)modelSlug; (void)placed; (void)x; (void)y; (void)mode;
++				return err_response("add_module is not supported in this build");
++#else
+ 				plugin::Plugin* plug = rack::plugin::getPlugin(plugSlug);
+ 				if (!plug) return err_response("plugin not found");
+ 				plugin::Model* mdl = plug->getModel(modelSlug);
+@@ -744,6 +754,7 @@ static std::string dispatch_req(json_t* req, Limen* limen, int depth) {
+ 				json_object_set_new(obj, "pos", pos_json(mw));
+ 				json_object_set_new(obj, "hp", json_integer((int64_t)std::lround(mw->getGridSize().x)));
+ 				return ok_response(obj);
++#endif // USING_CARDINAL_NOT_RACK
+ 			});
+ 		}
+ 	}
+@@ -1076,7 +1087,21 @@ struct LimenWidget : ModuleWidget {
+ 		// Pending zoom_to_modules: run on consecutive frames until the layout
+ 		// has settled, so the final fit is correctly centred.
+ 		if (m->zoomFrames.load() > 0) {
++#ifdef USING_CARDINAL_NOT_RACK
++			// Cardinal's Rack fork has no RackScrollWidget::zoomToModules();
++			// reimplement the fit: zoom to the module bounding box, centred.
++			rack::app::RackScrollWidget* rs = APP->scene->rackScroll;
++			math::Rect bb = rs->rackWidget->getChildrenBoundingBox();
++			if (bb.size.x > 0.f && bb.size.y > 0.f) {
++				math::Vec viewport = rs->box.size.div(rs->getZoom());
++				float zoom = std::min(viewport.x / bb.size.x, viewport.y / bb.size.y);
++				zoom = clamp(zoom, std::min(rs->getZoom(), 1.0f), 4.0f);
++				rs->setZoom(zoom, bb.getCenter());
++				rs->setGridOffset(bb.pos.minus(viewport.minus(bb.size).mult(0.5f)));
++			}
++#else
+ 			APP->scene->rackScroll->zoomToModules();
++#endif
+ 			m->zoomFrames--;
+ 		}
+ 	}
+diff --git a/src/pellicula.cpp b/src/pellicula.cpp
+index e5c043f..708d1d7 100644
+--- a/src/pellicula.cpp
++++ b/src/pellicula.cpp
+@@ -395,12 +395,25 @@ struct PelliculaWidget : ModuleWidget {
+         menu->addChild(createMenuLabel(folder.empty() ? "Kits folder: (not set)"
+                                                       : "Kits folder: " + folder));
+         menu->addChild(createMenuItem("Set kits folder…", "", [=]() {
++#ifdef USING_CARDINAL_NOT_RACK
++            // Cardinal has no blocking osdialog (and no directory picker in
++            // its async file browser); a save dialog stands in, the chosen
++            // file's directory is the kits folder.
++            async_dialog_filebrowser(true, "kit", folder.empty() ? NULL : folder.c_str(),
++                                     "Kits folder", [=](char* path) {
++                if (path) {
++                    setKitsFolder(system::getDirectory(path));
++                    std::free(path);
++                }
++            });
++#else
+             char* p = osdialog_file(OSDIALOG_OPEN_DIR,
+                                     folder.empty() ? NULL : folder.c_str(), NULL, NULL);
+             if (p) {
+                 setKitsFolder(p);
+                 std::free(p);
+             }
++#endif
+         }));
+         if (!folder.empty())
+             menu->addChild(createMenuItem("Clear kits folder", "", [=]() { setKitsFolder(""); }));
+diff --git a/src/vates.cpp b/src/vates.cpp
+index 0f66515..1e43214 100644
+--- a/src/vates.cpp
++++ b/src/vates.cpp
+@@ -1616,6 +1616,18 @@ struct VatesWidget : ModuleWidget {
+ 		menu->addChild(createMenuLabel(folder.empty() ? "Kits folder: (not set)"
+ 		                                              : "Kits folder: " + folder));
+ 		menu->addChild(createMenuItem("Set kits folder…", "", [=]() {
++#ifdef USING_CARDINAL_NOT_RACK
++			// Cardinal: save dialog instead of the (unavailable) blocking
++			// directory picker; the chosen file's directory is the folder.
++			async_dialog_filebrowser(true, "kit", folder.empty() ? NULL : folder.c_str(),
++			                         "Kits folder", [=](char* path) {
++				if (path) {
++					forsitan_sampler::setKitsFolder(system::getDirectory(path));
++					std::free(path);
++					m->refreshKits();
++				}
++			});
++#else
+ 			char* p = osdialog_file(OSDIALOG_OPEN_DIR,
+ 			                        folder.empty() ? NULL : folder.c_str(), NULL, NULL);
+ 			if (p) {
+@@ -1623,6 +1635,7 @@ struct VatesWidget : ModuleWidget {
+ 				std::free(p);
+ 				m->refreshKits();
+ 			}
++#endif
+ 		}));
+ 		menu->addChild(createMenuItem("Rescan kits", string::f("%d found", (int)m->kitNames.size()),
+ 			[=]() { m->refreshKits(); }));

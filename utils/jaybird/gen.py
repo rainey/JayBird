@@ -481,6 +481,19 @@ def generate_build_input(lines, blocks, plugins, sel):
                 append.setdefault(block["spl_line"], []).extend(
                     f'    spl.removeModule("{s}");' for s in slugs)
 
+        # Per-plugin model renames: copy any #define/#undef pairs that
+        # surround addModel lines inside this initStatic function, so the
+        # generated file resolves renamed model identifiers the same way
+        # plugins.cpp does (e.g. InfNoise's modelInfNoisePolySplit).
+        fn = block.get("func")
+        if fn in func_ranges:
+            s, e = func_ranges[fn]
+            for j in range(s, e + 1):
+                m2 = re.match(r'^\s*(#define|#undef)\s+(model\w+)\s*$', lines[j])
+                if m2:
+                    append.setdefault(block["spl_line"], []).append(
+                        lines[j].strip())
+
         # After a submodule pin bump the manifest (plugin.json) can list
         # modules the registration never addModel()s; Rack's
         # Plugin::modulesFromJson throws on unregistered manifest

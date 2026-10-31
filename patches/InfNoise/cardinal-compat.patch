@@ -1,0 +1,78 @@
+diff --git a/src/EnvelopePhaseExpander.cpp b/src/EnvelopePhaseExpander.cpp
+index 192618c..b81760d 100644
+--- a/src/EnvelopePhaseExpander.cpp
++++ b/src/EnvelopePhaseExpander.cpp
+@@ -376,6 +376,20 @@ struct EnvelopePhaseExpanderModuleWidget : InfNoiseModuleWidget {
+ 			return module->idleOutputMode.req != EnvelopePhaseExpanderModule::iom_phasePos;
+ 		};
+ 
++#ifdef USING_CARDINAL_NOT_RACK
++		// JayBird's Rack fork returns ui::MenuItem* (upstream returns
++		// TMenuItem*); the item is a TMenuItem subclass, so cast.
++		auto* sustainVoltItem = static_cast<DynamicDisabledMenuItem*>(createIndexSubmenuItem<DynamicDisabledMenuItem>(
++			"Sustain voltage", voltNames,
++			[=]() { return (size_t)module->sustainPosVolt.req; },
++			[=](size_t index) { module->sustainPosVolt.req = (voltValue)index; }));
++		sustainVoltItem->disabledWhen = idleVoltDisabled;
++		menu->addChild(sustainVoltItem);
++		auto* idleVoltItem = static_cast<DynamicDisabledMenuItem*>(createIndexSubmenuItem<DynamicDisabledMenuItem>(
++			"Idle voltage", voltNames,
++			[=]() { return (size_t)module->idlePosVolt.req; },
++			[=](size_t index) { module->idlePosVolt.req = (voltValue)index; }));
++#else
+ 		DynamicDisabledMenuItem* sustainVoltItem = createIndexSubmenuItem<DynamicDisabledMenuItem>(
+ 			"Sustain voltage", voltNames,
+ 			[=]() { return (size_t)module->sustainPosVolt.req; },
+@@ -386,6 +400,7 @@ struct EnvelopePhaseExpanderModuleWidget : InfNoiseModuleWidget {
+ 			"Idle voltage", voltNames,
+ 			[=]() { return (size_t)module->idlePosVolt.req; },
+ 			[=](size_t index) { module->idlePosVolt.req = (voltValue)index; });
++#endif
+ 		idleVoltItem->disabledWhen = idleVoltDisabled;
+ 		menu->addChild(idleVoltItem);
+ 
+diff --git a/src/RingMod3.cpp b/src/RingMod3.cpp
+index 91fea81..a3d2970 100644
+--- a/src/RingMod3.cpp
++++ b/src/RingMod3.cpp
+@@ -85,11 +85,11 @@ struct RingMod3Module : InfNoiseModule {
+         
+         for (int i = 0; i < 3; i++) {
+             std::string aNorm = (i > 0) ? " (normalized to to prev AB-output)" : " (normalized to 0V)";
+-            configInput(A1_INPUT + i, string::f("A%d"+aNorm, i + 1));
++            configInput(A1_INPUT + i, string::f(("A%d"+aNorm).c_str(), i + 1));
+             std::string bNorm = (i > 0) ? " (normalized to prev B-input)" : " (normalized to A1)";
+-            configInput(B1_INPUT + i, string::f("B%d"+bNorm, i + 1));
++            configInput(B1_INPUT + i, string::f(("B%d"+bNorm).c_str(), i + 1));
+             std::string abNorm  = (i < 2) ? " (next A-input will normalized to this AB-output)" : "";
+-            configOutput(AB1_OUTPUT + i, string::f("AB%d"+abNorm, i + 1));
++            configOutput(AB1_OUTPUT + i, string::f(("AB%d"+abNorm).c_str(), i + 1));
+             
+             int scaleLightIdx = i * 2;
+             configLight(A1_SCALE_LIGHT + scaleLightIdx, string::f("A%d Scale (unlit=1x, yellow=/5, green=/10)", i + 1));
+diff --git a/src/plugin.hpp b/src/plugin.hpp
+index 3704d5a..d722983 100644
+--- a/src/plugin.hpp
++++ b/src/plugin.hpp
+@@ -795,10 +795,21 @@ struct InfNoiseModuleWidget : ModuleWidget {
+             }
+             if (module->haveProcQuality) {
+                 std::vector<std::string> procQualNames = getProcessQualityNames();
++#ifdef USING_CARDINAL_NOT_RACK
++                // JayBird's Rack fork returns ui::MenuItem* from
++                // createIndexSubmenuItem (upstream returns TMenuItem*);
++                // the returned item is a TMenuItem subclass, so cast.
++                auto* procQualItem = static_cast<DynamicDisabledMenuItem*>(
++                    createIndexSubmenuItem<DynamicDisabledMenuItem>(
++                        "Process quality", procQualNames,
++                        [=]() { return (size_t)module->procQuality.req; },
++                        [=](size_t index) { module->procQuality.req = (processQuality)index; }));
++#else
+                 DynamicDisabledMenuItem* procQualItem = createIndexSubmenuItem<DynamicDisabledMenuItem>(
+                     "Process quality", procQualNames,
+                     [=]() { return (size_t)module->procQuality.req; },
+                     [=](size_t index) { module->procQuality.req = (processQuality)index; });
++#endif
+                 // Disable manual selection while Auto process-quality is on (refreshed each frame for Ctrl/Cmd-open menu)
+                 procQualItem->disabledWhen = [=]() {
+                     return module->haveAutoProcQuality && module->autoProcQuality.req;

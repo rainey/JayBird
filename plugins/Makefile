@@ -502,9 +502,6 @@ PLUGIN_FILES += AudibleInstruments/eurorack/stages/segment_generator.cc
 PLUGIN_FILES += AudibleInstruments/eurorack/stages/ramp_extractor.cc
 PLUGIN_FILES += AudibleInstruments/eurorack/stages/resources.cc
 
-PLUGIN_FILES += AudibleInstruments/eurorack/stmlib/utils/random.cc
-PLUGIN_FILES += AudibleInstruments/eurorack/stmlib/dsp/atan.cc
-PLUGIN_FILES += AudibleInstruments/eurorack/stmlib/dsp/units.cc
 PLUGIN_FILES += AudibleInstruments/eurorack/marbles/random/t_generator.cc
 PLUGIN_FILES += AudibleInstruments/eurorack/marbles/random/x_y_generator.cc
 PLUGIN_FILES += AudibleInstruments/eurorack/marbles/random/output_channel.cc
@@ -831,6 +828,25 @@ PLUGIN_FILES += $(wildcard HetrickCV/Gamma/src/scl.cpp)
 HETRICKCV_CUSTOM = ASR BlankPanel FlipFlop MidSide MinMax PanelBaseWidget InverterWidget
 
 # --------------------------------------------------------------
+# InfNoise (InfiniteNoise)
+# Mirrors upstream Makefile: src/*.cpp minus plugin.cpp (Cardinal registers
+# the models itself); upstream adds -I./src/ctrl for SqUI.h and
+# PopupMenuParamWidget.h. No osdialog/MIDI/network usage. v2.0.5 (44859c8).
+# 85 modules; FlipFlop/PolySplit clash with HetrickCV/GrandeModular.
+# plugin.cpp's non-registration parts (settings helpers, widget overlay
+# methods, port-prefix constants) are carried by InfNoise-shim.cpp —
+# same pattern as CountModula-shim.cpp.
+
+PLUGIN_FILES += InfNoise-shim.cpp
+
+# modules/types which are present in other plugins
+INFNOISE_CUSTOM = FlipFlop PolySplit
+
+PLUGIN_FILES += $(filter-out InfNoise/src/plugin.cpp,$(wildcard InfNoise/src/*.cpp))
+
+INFNOISE_FLAGS = -IInfNoise/src/ctrl
+
+# --------------------------------------------------------------
 # ImpromptuModular
 
 PLUGIN_FILES += $(wildcard ImpromptuModular/src/*.cpp)
@@ -966,6 +982,21 @@ MINIPLUGIN_FILES += MockbaModular/src/ReVoltah.cpp
 MINIPLUGIN_FILES += MockbaModular/src/Shapah.cpp
 
 # --------------------------------------------------------------
+# Moffenzeef
+# Mirrors upstream Makefile: src/*.cpp minus plugin.cpp (Cardinal registers
+# models itself), plus vendored src/stb_vorbis.c compiled as C (used by
+# Tehom.cpp's OGG decoder).
+# Symbol hygiene: Count (modelCount) clashes with SignalFunctionSet's Count
+# module; ours renames to modelMoffenzeefCount (SignalFunctionSet keeps the
+# plain name).
+
+PLUGIN_FILES += $(filter-out Moffenzeef/src/plugin.cpp,$(wildcard Moffenzeef/src/*.cpp))
+PLUGIN_FILES += Moffenzeef/src/stb_vorbis.c
+
+# modules/types which are present in other plugins
+MOFFENZEEF_CUSTOM = Count
+
+# --------------------------------------------------------------
 # Mog
 
 PLUGIN_FILES += Mog/src/Network.cpp
@@ -1024,6 +1055,17 @@ PLUGIN_FILES += ParableInstruments/parasites/stmlib/dsp/units.cc
 
 # modules/types which are present in other plugins
 PARABLE_CUSTOM = Clouds CustomPanel CloudsWidget FreezeLight clouds stmlib
+
+# --------------------------------------------------------------
+# PatchableDevices
+# Mirrors upstream Makefile: modules/*.cpp (top level holds only
+# plugin.cpp — excluded, Cardinal registers the models itself) plus
+# modules/<Module>/<Module>.cpp and modules/utils/*.cpp, which is what
+# upstream's `modules/**/*.cpp` wildcard (one level of subdirectories)
+# resolves to.
+
+PLUGIN_FILES += $(filter-out PatchableDevices/modules/plugin.cpp,$(wildcard PatchableDevices/modules/*.cpp))
+PLUGIN_FILES += $(wildcard PatchableDevices/modules/*/*.cpp)
 
 # --------------------------------------------------------------
 # Path Set
@@ -2159,7 +2201,12 @@ PLUGIN_FILES    := $(filter-out $(JAYBIRD_DISABLED_PATTERNS),$(PLUGIN_FILES))
 PLUGIN_BINARIES := $(filter-out $(JAYBIRD_DISABLED_PATTERNS),$(PLUGIN_BINARIES))
 endif
 
-# re-add dependency sources needed by always-compiled helpers
+# Re-add dependency sources needed by always-compiled helpers. Force
+# PLUGIN_FILES simply-expanded first: without JAYBIRD_DISABLED_PATTERNS
+# (build-all mode) it is still a recursive += chain, and the filter-out
+# below would then reference itself -> "Recursive variable 'PLUGIN_FILES'
+# references itself" at the final link.
+PLUGIN_FILES := $(PLUGIN_FILES)
 PLUGIN_FILES += $(filter-out $(PLUGIN_FILES),$(JAYBIRD_KEEP_SOURCES))
 
 PLUGIN_OBJS  = $(PLUGIN_FILES:%=$(BUILD_DIR)/%.o)
@@ -2194,17 +2241,17 @@ $(BUILD_DIR)/%.bin.o: $(BUILD_DIR)/%.bin.c
 	@echo "Compiling $*.bin"
 	$(SILENT)$(CC) $< $(BUILD_C_FLAGS) -c -o $@
 
-$(BUILD_DIR)/plugins.cpp.o: plugins.cpp
+$(BUILD_DIR)/plugins.cpp.o: plugins.cpp | submodule-patches
 	-@mkdir -p "$(shell dirname $(BUILD_DIR)/$<)"
 	@echo "Compiling $<"
 	$(SILENT)$(CXX) $< $(BUILD_CXX_FLAGS) -c -o $@
 
-$(BUILD_DIR)/plugins-mini.cpp.o: plugins-mini.cpp
+$(BUILD_DIR)/plugins-mini.cpp.o: plugins-mini.cpp | submodule-patches
 	-@mkdir -p "$(shell dirname $(BUILD_DIR)/$<)"
 	@echo "Compiling $<"
 	$(SILENT)$(CXX) $< $(BUILD_CXX_FLAGS) -c -o $@
 
-$(BUILD_DIR)/noplugins.cpp.o: plugins.cpp
+$(BUILD_DIR)/noplugins.cpp.o: plugins.cpp | submodule-patches
 	-@mkdir -p "$(shell dirname $(BUILD_DIR)/$<)"
 	@echo "Compiling $<"
 	$(SILENT)$(CXX) $< $(BUILD_CXX_FLAGS) -c -o $@
@@ -2522,7 +2569,7 @@ $(BUILD_DIR)/FehlerFabrik/%.cpp.o: FehlerFabrik/%.cpp
 		$(foreach m,$(FEHLERFABRIK_CUSTOM),$(call custom_module_names,$(m),FehlerFabrik)) \
 		-DpluginInstance=pluginInstance__FehlerFabrik
 
-$(BUILD_DIR)/forsitan-modulare/%.cpp.o: forsitan-modulare/%.cpp
+$(BUILD_DIR)/forsitan-modulare/%.cpp.o: forsitan-modulare/%.cpp | submodule-patches
 	-@mkdir -p "$(shell dirname $(BUILD_DIR)/$<)"
 	@echo "Compiling $<"
 	$(SILENT)$(CXX) $< $(BUILD_CXX_FLAGS) -c -o $@ \
@@ -2639,6 +2686,23 @@ $(BUILD_DIR)/HetrickCV/%.cpp.o: HetrickCV/%.cpp
 		-DSTDIO_OVERRIDE=HetrickCV \
 		-IHetrickCV/Gamma \
 		-Wno-unused-but-set-variable
+
+$(BUILD_DIR)/InfNoise/%.cpp.o: InfNoise/%.cpp | submodule-patches
+	-@mkdir -p "$(shell dirname $(BUILD_DIR)/$<)"
+	@echo "Compiling $<"
+	$(SILENT)$(CXX) $< $(BUILD_CXX_FLAGS) -c -o $@ \
+		$(foreach m,$(INFNOISE_CUSTOM),$(call custom_module_names,$(m),InfNoise)) \
+		$(INFNOISE_FLAGS) \
+		-DpluginInstance=pluginInstance__InfNoise
+
+$(BUILD_DIR)/InfNoise-shim.cpp.o: InfNoise-shim.cpp | submodule-patches
+	-@mkdir -p "$(shell dirname $(BUILD_DIR)/$<)"
+	@echo "Compiling $<"
+	$(SILENT)$(CXX) $< $(BUILD_CXX_FLAGS) -c -o $@ \
+		$(foreach m,$(INFNOISE_CUSTOM),$(call custom_module_names,$(m),InfNoise)) \
+		$(INFNOISE_FLAGS) \
+		-IInfNoise/src \
+		-DpluginInstance=pluginInstance__InfNoise
 
 $(BUILD_DIR)/ImpromptuModular/src/Foundr%.cpp.o: ImpromptuModular/src/Foundr%.cpp
 	-@mkdir -p "$(shell dirname $(BUILD_DIR)/$<)"
@@ -2779,6 +2843,19 @@ $(BUILD_DIR)/MockbaModular/%.cpp.o: MockbaModular/%.cpp
 		$(foreach m,$(MOCKBAMODULAR_CUSTOM),$(call custom_module_names,$(m),MockbaModular)) \
 		-DpluginInstance=pluginInstance__MockbaModular
 
+$(BUILD_DIR)/Moffenzeef/%.cpp.o: Moffenzeef/%.cpp
+	-@mkdir -p "$(shell dirname $(BUILD_DIR)/$<)"
+	@echo "Compiling $<"
+	$(SILENT)$(CXX) $< $(BUILD_CXX_FLAGS) -c -o $@ \
+		$(foreach m,$(MOFFENZEEF_CUSTOM),$(call custom_module_names,$(m),Moffenzeef)) \
+		-DpluginInstance=pluginInstance__Moffenzeef
+
+$(BUILD_DIR)/Moffenzeef/%.c.o: Moffenzeef/%.c
+	-@mkdir -p "$(shell dirname $(BUILD_DIR)/$<)"
+	@echo "Compiling $<"
+	$(SILENT)$(CC) $< $(BUILD_C_FLAGS) -c -o $@ \
+		-DpluginInstance=pluginInstance__Moffenzeef
+
 $(BUILD_DIR)/Mog/%.cpp.o: Mog/%.cpp
 	-@mkdir -p "$(shell dirname $(BUILD_DIR)/$<)"
 	@echo "Compiling $<"
@@ -2845,6 +2922,12 @@ $(BUILD_DIR)/ParableInstruments/%.o: ParableInstruments/%
 		-IArableInstruments/parasites \
 		-Wno-class-memaccess \
 		-Wno-unused-local-typedefs
+
+$(BUILD_DIR)/PatchableDevices/%.cpp.o: PatchableDevices/%.cpp
+	-@mkdir -p "$(shell dirname $(BUILD_DIR)/$<)"
+	@echo "Compiling $<"
+	$(SILENT)$(CXX) $< $(BUILD_CXX_FLAGS) -c -o $@ \
+		-DpluginInstance=pluginInstance__PatchableDevices
 
 $(BUILD_DIR)/PathSet/%.cpp.o: PathSet/%.cpp
 	-@mkdir -p "$(shell dirname $(BUILD_DIR)/$<)"
@@ -3064,7 +3147,7 @@ $(BUILD_DIR)/ZZC/%.cpp.o: ZZC/%.cpp
 
 # --------------------------------------------------------------
 
-$(BUILD_DIR)/plugins-jaybird.cpp.o: plugins-jaybird.cpp
+$(BUILD_DIR)/plugins-jaybird.cpp.o: plugins-jaybird.cpp | submodule-patches
 	-@mkdir -p "$(shell dirname $(BUILD_DIR)/$<)"
 	@echo "Compiling $<"
 	$(SILENT)$(CXX) $< $(BUILD_CXX_FLAGS) -c -o $@

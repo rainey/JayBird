@@ -275,3 +275,12 @@
 [submodule "plugins/halfagiraf-modules"]
 	path = plugins/halfagiraf-modules
 	url = https://github.com/stevenmcsorley/halfagiraf-modules.git
+[submodule "plugins/PatchableDevices"]
+	path = plugins/PatchableDevices
+	url = https://github.com/nullJaX/vcvrack-patchable-devices.git
+[submodule "plugins/Moffenzeef"]
+	path = plugins/Moffenzeef
+	url = https://github.com/moffenzeefmodular/VCVrack-submission.git
+[submodule "plugins/InfNoise"]
+	path = plugins/InfNoise
+	url = https://github.com/pellelil/InfNoiseRack.git

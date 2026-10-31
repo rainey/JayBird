@@ -216,6 +216,17 @@ plugins/HetrickCV:
   artwork_license: 'CC0-1.0'
   phone_home: null  # TODO
 
+# plugins/InfNoise (InfiniteNoise)
+# Code: GPL-3.0-or-later (LICENSE.md/plugin.json; vendored Dintree-derived
+# dsp code in inMath.hpp carries its own permissive header, see file).
+# Artwork: CC-BY-NC-4.0 (LICENSE.md — panels/logo by Infinite-Noise;
+# PolyPort.svg/-dark based on VCV's PJ301M, same NC license). The http
+# hits in src are license-header URLs and code-comment citations only,
+# no network:: calls; no osdialog, no MIDI driver usage.
+plugins/InfNoise:
+  artwork_license: 'CC-BY-NC-4.0'
+  phone_home: false
+
 # plugins/ImpromptuModular
 plugins/ImpromptuModular:
   artwork_license: 'CC-BY-NC-ND-4.0'
@@ -398,9 +409,30 @@ plugins/eightfold:
   phone_home: null  # TODO
 
 # plugins/forsitan-modulare
+# Code: GPL-3.0-or-later (plugin.json/LICENSE). Artwork GPL-3.0-or-later
+# (same plugin.json license, panels under img/ + res/). No network access
+# in src/ (v2.17.0 c642f12; kits folder picking is local-only).
 plugins/forsitan-modulare:
   artwork_license: 'GPL-3.0-or-later'
-  phone_home: null  # TODO
+  phone_home: false
+
+# plugins/Moffenzeef
+# Code: GPL-3.0+ (plugin.json/LICENSE, GPLv3). Artwork: same license
+# (plugin.json license field; panels under res/panels). stb_vorbis is
+# public-domain/MIT-permission code, not artwork. No network access in
+# src/ (grep: no network::, curl, http; stb_vorbis is a local file decoder).
+plugins/Moffenzeef:
+  artwork_license: 'GPL-3.0+'
+  phone_home: false
+
+# plugins/PatchableDevices
+# Code: GPL-3.0-or-later (plugin.json/LICENSE). Artwork GPL-3.0-or-later
+# (same plugin.json license; SVG panels under modules/). The "network"
+# grep hits in DualIntegrator/panel_schema are license-header URLs only,
+# no network:: calls. No MIDI driver usage.
+plugins/PatchableDevices:
+  artwork_license: 'GPL-3.0-or-later'
+  phone_home: false
 
 # plugins/h4n4-modules
 plugins/h4n4-modules:

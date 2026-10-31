@@ -3432,6 +3432,14 @@ config MOD_IMPROMPTUMODULAR_BLANK_PANEL
 	depends on PLUG_IMPROMPTUMODULAR
 endif
 endmenu
+menu "InfNoise (InfNoise)"
+	comment "code: GPL-3.0-or-later  artwork: CC-BY-NC-4.0"
+config PLUG_INFNOISE
+	bool "InfNoise"
+	default y
+	depends on ALLOW_NC_ARTWORK
+	# registration block not parseable; plugin-level switch only
+endmenu
 menu "JW-Modules (JW-Modules)"
 	comment "code: BSD-3-Clause  artwork: BSD-3-Clause"
 config PLUG_JW_MODULES
@@ -4321,6 +4329,119 @@ config MOD_MOCKBAMODULAR_PSELECTAH
 	depends on PLUG_MOCKBAMODULAR
 endif
 endmenu
+menu "Moffenzeef (Moffenzeef)"
+	comment "code: GPL-3.0-only  artwork: GPL-3.0+"
+config PLUG_MOFFENZEEF
+	bool "Moffenzeef"
+	default y
+	depends on ALLOW_GPL3_ONLY
+if PLUG_MOFFENZEEF
+config MOD_MOFFENZEEF_BADIDEA9
+	bool "Bad Idea #9"
+	default PLUG_MOFFENZEEF
+	depends on PLUG_MOFFENZEEF
+config MOD_MOFFENZEEF_BADIDEA1800
+	bool "Bad Idea #1800-Call-Yer-Mum"
+	default PLUG_MOFFENZEEF
+	depends on PLUG_MOFFENZEEF
+config MOD_MOFFENZEEF_BOBCAT
+	bool "Bobcat"
+	default PLUG_MOFFENZEEF
+	depends on PLUG_MOFFENZEEF
+config MOD_MOFFENZEEF_BUSMULT
+	bool "Bus Mult"
+	default PLUG_MOFFENZEEF
+	depends on PLUG_MOFFENZEEF
+config MOD_MOFFENZEEF_COUNT
+	bool "Count"
+	default PLUG_MOFFENZEEF
+	depends on PLUG_MOFFENZEEF
+config MOD_MOFFENZEEF_DEVIANT
+	bool "Deviant"
+	default PLUG_MOFFENZEEF
+	depends on PLUG_MOFFENZEEF
+config MOD_MOFFENZEEF_DIALUP
+	bool "Dial Up"
+	default PLUG_MOFFENZEEF
+	depends on PLUG_MOFFENZEEF
+config MOD_MOFFENZEEF_GMO
+	bool "GMO"
+	default PLUG_MOFFENZEEF
+	depends on PLUG_MOFFENZEEF
+config MOD_MOFFENZEEF_KRIKET
+	bool "Kriket"
+	default PLUG_MOFFENZEEF
+	depends on PLUG_MOFFENZEEF
+config MOD_MOFFENZEEF_MITO
+	bool "MITO"
+	default PLUG_MOFFENZEEF
+	depends on PLUG_MOFFENZEEF
+config MOD_MOFFENZEEF_MOFFENMIX
+	bool "Moffenmix"
+	default PLUG_MOFFENZEEF
+	depends on PLUG_MOFFENZEEF
+config MOD_MOFFENZEEF_MONGREL
+	bool "Mongrel"
+	default PLUG_MOFFENZEEF
+	depends on PLUG_MOFFENZEEF
+config MOD_MOFFENZEEF_MUSKRAT
+	bool "Muskrat"
+	default PLUG_MOFFENZEEF
+	depends on PLUG_MOFFENZEEF
+config MOD_MOFFENZEEF_SIMPLIFY
+	bool "Simplify"
+	default PLUG_MOFFENZEEF
+	depends on PLUG_MOFFENZEEF
+config MOD_MOFFENZEEF_2HPBLANK
+	bool "2hpBlank"
+	default PLUG_MOFFENZEEF
+	depends on PLUG_MOFFENZEEF
+config MOD_MOFFENZEEF_14HPBLANK
+	bool "14hpBlank"
+	default PLUG_MOFFENZEEF
+	depends on PLUG_MOFFENZEEF
+config MOD_MOFFENZEEF_SWARM
+	bool "Swarm"
+	default PLUG_MOFFENZEEF
+	depends on PLUG_MOFFENZEEF
+config MOD_MOFFENZEEF_INTENSIFIES
+	bool "INTENSIFIES"
+	default PLUG_MOFFENZEEF
+	depends on PLUG_MOFFENZEEF
+config MOD_MOFFENZEEF_THERUNNER
+	bool "The Runner"
+	default PLUG_MOFFENZEEF
+	depends on PLUG_MOFFENZEEF
+config MOD_MOFFENZEEF_STARGAZER
+	bool "Stargazer"
+	default PLUG_MOFFENZEEF
+	depends on PLUG_MOFFENZEEF
+config MOD_MOFFENZEEF_KLEZTIZER
+	bool "Kleztizer"
+	default PLUG_MOFFENZEEF
+	depends on PLUG_MOFFENZEEF
+config MOD_MOFFENZEEF_TANTZ
+	bool "Tantz!"
+	default PLUG_MOFFENZEEF
+	depends on PLUG_MOFFENZEEF
+config MOD_MOFFENZEEF_QUADDEVIANT
+	bool "Quad Deviant"
+	default PLUG_MOFFENZEEF
+	depends on PLUG_MOFFENZEEF
+config MOD_MOFFENZEEF_TEHOM
+	bool "Tehom"
+	default PLUG_MOFFENZEEF
+	depends on PLUG_MOFFENZEEF
+config MOD_MOFFENZEEF_DITDIT
+	bool "DitDit"
+	default PLUG_MOFFENZEEF
+	depends on PLUG_MOFFENZEEF
+config MOD_MOFFENZEEF_PARTICLES
+	bool "Particles"
+	default PLUG_MOFFENZEEF
+	depends on PLUG_MOFFENZEEF
+endif
+endmenu
 menu "Mog (Mog)"
 	comment "code: CC0-1.0  artwork: CC0-1.0"
 config PLUG_MOG
@@ -4352,6 +4473,38 @@ config MOD_ORBITS_RAREBREEDS_ORBITS_POLYGENE
 	bool "Polygene"
 	default PLUG_ORBITS
 	depends on PLUG_ORBITS
+endif
+endmenu
+menu "PatchableDevices (PatchableDevices)"
+	comment "code: GPL-3.0-or-later  artwork: GPL-3.0-or-later"
+config PLUG_PATCHABLEDEVICES
+	bool "PatchableDevices"
+	default y
+if PLUG_PATCHABLEDEVICES
+config MOD_PATCHABLEDEVICES_COMPARINGCOUNTER
+	bool "Comparing Counter"
+	default PLUG_PATCHABLEDEVICES
+	depends on PLUG_PATCHABLEDEVICES
+config MOD_PATCHABLEDEVICES_DIGITALCHAOTICSYSTEM
+	bool "Digital Chaotic System"
+	default PLUG_PATCHABLEDEVICES
+	depends on PLUG_PATCHABLEDEVICES
+config MOD_PATCHABLEDEVICES_DUALINTEGRATOR
+	bool "Dual Integrator"
+	default PLUG_PATCHABLEDEVICES
+	depends on PLUG_PATCHABLEDEVICES
+config MOD_PATCHABLEDEVICES_NONLINEARINTEGRATOR
+	bool "Nonlinear Integrator"
+	default PLUG_PATCHABLEDEVICES
+	depends on PLUG_PATCHABLEDEVICES
+config MOD_PATCHABLEDEVICES_VOLTAGESEQUENCER
+	bool "Voltage Sequencer"
+	default PLUG_PATCHABLEDEVICES
+	depends on PLUG_PATCHABLEDEVICES
+config MOD_PATCHABLEDEVICES_WINDOWGENERATORS
+	bool "Window Generators"
+	default PLUG_PATCHABLEDEVICES
+	depends on PLUG_PATCHABLEDEVICES
 endif
 endmenu
 menu "PathSet (PathSet)"
@@ -5714,6 +5867,150 @@ config MOD_FORSITAN_MODULARE_DEINDE
 	depends on PLUG_FORSITAN_MODULARE
 config MOD_FORSITAN_MODULARE_PAVO
 	bool "pavo"
+	default PLUG_FORSITAN_MODULARE
+	depends on PLUG_FORSITAN_MODULARE
+config MOD_FORSITAN_MODULARE_LIMEN
+	bool "limen"
+	default PLUG_FORSITAN_MODULARE
+	depends on PLUG_FORSITAN_MODULARE
+config MOD_FORSITAN_MODULARE_MMCCCXCIX
+	bool "MMCCCXCIX"
+	default PLUG_FORSITAN_MODULARE
+	depends on PLUG_FORSITAN_MODULARE
+config MOD_FORSITAN_MODULARE_SCANDO
+	bool "scando"
+	default PLUG_FORSITAN_MODULARE
+	depends on PLUG_FORSITAN_MODULARE
+config MOD_FORSITAN_MODULARE_PELLICULA
+	bool "pellicula"
+	default PLUG_FORSITAN_MODULARE
+	depends on PLUG_FORSITAN_MODULARE
+config MOD_FORSITAN_MODULARE_DRAEN
+	bool "dræn"
+	default PLUG_FORSITAN_MODULARE
+	depends on PLUG_FORSITAN_MODULARE
+config MOD_FORSITAN_MODULARE_RETE
+	bool "rete"
+	default PLUG_FORSITAN_MODULARE
+	depends on PLUG_FORSITAN_MODULARE
+config MOD_FORSITAN_MODULARE_ULULO
+	bool "ululo"
+	default PLUG_FORSITAN_MODULARE
+	depends on PLUG_FORSITAN_MODULARE
+config MOD_FORSITAN_MODULARE_TABES
+	bool "tabes"
+	default PLUG_FORSITAN_MODULARE
+	depends on PLUG_FORSITAN_MODULARE
+config MOD_FORSITAN_MODULARE_LUSTRO
+	bool "lustro"
+	default PLUG_FORSITAN_MODULARE
+	depends on PLUG_FORSITAN_MODULARE
+config MOD_FORSITAN_MODULARE_BULLA
+	bool "bulla"
+	default PLUG_FORSITAN_MODULARE
+	depends on PLUG_FORSITAN_MODULARE
+config MOD_FORSITAN_MODULARE_PERGE
+	bool "perge"
+	default PLUG_FORSITAN_MODULARE
+	depends on PLUG_FORSITAN_MODULARE
+config MOD_FORSITAN_MODULARE_VORAX
+	bool "vorax"
+	default PLUG_FORSITAN_MODULARE
+	depends on PLUG_FORSITAN_MODULARE
+config MOD_FORSITAN_MODULARE_TEXTOR
+	bool "textor"
+	default PLUG_FORSITAN_MODULARE
+	depends on PLUG_FORSITAN_MODULARE
+config MOD_FORSITAN_MODULARE_IMBER
+	bool "imber"
+	default PLUG_FORSITAN_MODULARE
+	depends on PLUG_FORSITAN_MODULARE
+config MOD_FORSITAN_MODULARE_SYLLA
+	bool "sylla"
+	default PLUG_FORSITAN_MODULARE
+	depends on PLUG_FORSITAN_MODULARE
+config MOD_FORSITAN_MODULARE_GUTTUR
+	bool "guttur"
+	default PLUG_FORSITAN_MODULARE
+	depends on PLUG_FORSITAN_MODULARE
+config MOD_FORSITAN_MODULARE_VESPAE
+	bool "vespae"
+	default PLUG_FORSITAN_MODULARE
+	depends on PLUG_FORSITAN_MODULARE
+config MOD_FORSITAN_MODULARE_QUADRARE
+	bool "quadrare"
+	default PLUG_FORSITAN_MODULARE
+	depends on PLUG_FORSITAN_MODULARE
+config MOD_FORSITAN_MODULARE_VESTIGIA
+	bool "vestigia"
+	default PLUG_FORSITAN_MODULARE
+	depends on PLUG_FORSITAN_MODULARE
+config MOD_FORSITAN_MODULARE_ANTRUM
+	bool "antrum"
+	default PLUG_FORSITAN_MODULARE
+	depends on PLUG_FORSITAN_MODULARE
+config MOD_FORSITAN_MODULARE_CALIGO
+	bool "caligo"
+	default PLUG_FORSITAN_MODULARE
+	depends on PLUG_FORSITAN_MODULARE
+config MOD_FORSITAN_MODULARE_RAUCUS
+	bool "raucus"
+	default PLUG_FORSITAN_MODULARE
+	depends on PLUG_FORSITAN_MODULARE
+config MOD_FORSITAN_MODULARE_TUNDO
+	bool "tundo"
+	default PLUG_FORSITAN_MODULARE
+	depends on PLUG_FORSITAN_MODULARE
+config MOD_FORSITAN_MODULARE_CARTILAGO
+	bool "cartilago"
+	default PLUG_FORSITAN_MODULARE
+	depends on PLUG_FORSITAN_MODULARE
+config MOD_FORSITAN_MODULARE_SCRUPEA
+	bool "scrupea"
+	default PLUG_FORSITAN_MODULARE
+	depends on PLUG_FORSITAN_MODULARE
+config MOD_FORSITAN_MODULARE_VIGINTI
+	bool "viginti"
+	default PLUG_FORSITAN_MODULARE
+	depends on PLUG_FORSITAN_MODULARE
+config MOD_FORSITAN_MODULARE_GRADUS
+	bool "gradus"
+	default PLUG_FORSITAN_MODULARE
+	depends on PLUG_FORSITAN_MODULARE
+config MOD_FORSITAN_MODULARE_MATERIAE
+	bool "materiae"
+	default PLUG_FORSITAN_MODULARE
+	depends on PLUG_FORSITAN_MODULARE
+config MOD_FORSITAN_MODULARE_AETHER
+	bool "aether"
+	default PLUG_FORSITAN_MODULARE
+	depends on PLUG_FORSITAN_MODULARE
+config MOD_FORSITAN_MODULARE_ARTIFEX
+	bool "artifex"
+	default PLUG_FORSITAN_MODULARE
+	depends on PLUG_FORSITAN_MODULARE
+config MOD_FORSITAN_MODULARE_VATES
+	bool "vates"
+	default PLUG_FORSITAN_MODULARE
+	depends on PLUG_FORSITAN_MODULARE
+config MOD_FORSITAN_MODULARE_RADIX
+	bool "radix"
+	default PLUG_FORSITAN_MODULARE
+	depends on PLUG_FORSITAN_MODULARE
+config MOD_FORSITAN_MODULARE_OLIM
+	bool "olim"
+	default PLUG_FORSITAN_MODULARE
+	depends on PLUG_FORSITAN_MODULARE
+config MOD_FORSITAN_MODULARE_NODI
+	bool "nodi"
+	default PLUG_FORSITAN_MODULARE
+	depends on PLUG_FORSITAN_MODULARE
+config MOD_FORSITAN_MODULARE_RUBIGO
+	bool "rubigo"
+	default PLUG_FORSITAN_MODULARE
+	depends on PLUG_FORSITAN_MODULARE
+config MOD_FORSITAN_MODULARE_SPIRA
+	bool "spira"
 	default PLUG_FORSITAN_MODULARE
 	depends on PLUG_FORSITAN_MODULARE
 endif

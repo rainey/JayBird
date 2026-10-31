@@ -569,6 +569,16 @@ extern Model* modelXYToPolar;
 #undef PanelBaseWidget
 #undef InverterWidget
 
+// InfNoise (InfiniteNoise)
+// FlipFlop and PolySplit are renamed: HetrickCV keeps the plain
+// modelFlipFlop, GrandeModular the plain modelPolySplit
+// (INFNOISE_CUSTOM in plugins/Makefile renames our side).
+#define modelFlipFlop modelInfNoiseFlipFlop
+#define modelPolySplit modelInfNoisePolySplit
+#include "InfNoise/src/plugin.hpp"
+#undef modelFlipFlop
+#undef modelPolySplit
+
 // ImpromptuModular
 /* NOTE too much noise in original include, do this a different way
 // #include "ImpromptuModular/src/ImpromptuModular.hpp"
@@ -748,6 +758,13 @@ extern Model* modelArpeggiator;
 #undef loadBack
 std::string loadBack(int) { return "res/Empty_gray.svg"; }
 
+// Moffenzeef
+// Count is renamed: SignalFunctionSet keeps the plain modelCount
+// (MOFFENZEEF_CUSTOM in plugins/Makefile renames our side).
+#define modelCount modelMoffenzeefCount
+#include "Moffenzeef/src/plugin.hpp"
+#undef modelCount
+
 // Mog
 #include "Mog/src/plugin.hpp"
 
@@ -837,6 +854,9 @@ extern Model* modelBlankPanel;
 #define modelClouds modelParableClouds
 #include "ParableInstruments/src/ArableInstruments.hpp"
 #undef modelClouds
+
+// PatchableDevices
+#include "PatchableDevices/modules/plugin.hpp"
 
 // Path Set
 #include "PathSet/src/plugin.hpp"
@@ -1031,6 +1051,7 @@ Plugin* pluginInstance__H4N4;
 Plugin* pluginInstance__halfagiraf;
 Plugin* pluginInstance__HamptonHarmonics;
 Plugin* pluginInstance__HetrickCV;
+Plugin* pluginInstance__InfNoise;
 extern Plugin* pluginInstance__ImpromptuModular;
 Plugin* pluginInstance__ihtsyn;
 Plugin* pluginInstance__JW;
@@ -1044,8 +1065,10 @@ Plugin* pluginInstance__Meander;
 extern Plugin* pluginInstance__MindMeld;
 Plugin* pluginInstance__ML;
 Plugin* pluginInstance__MockbaModular;
+Plugin* pluginInstance__Moffenzeef;
 Plugin* pluginInstance__Mog;
 extern Plugin* pluginInstance__mscHack;
+Plugin* pluginInstance__PatchableDevices;
 Plugin* pluginInstance__MSM;
 Plugin* pluginInstance__MUS_X;
 Plugin* pluginInstance__myth_modules;
@@ -2524,6 +2547,42 @@ static void initStatic__forsitan()
         p->addModel(cumuli);
         p->addModel(deinde);
         p->addModel(pavo);
+        p->addModel(limen);
+        p->addModel(modelMMCCCXCIX);
+        p->addModel(modelScando);
+        p->addModel(modelPellicula);
+        p->addModel(modelDraen);
+        p->addModel(modelRete);
+        p->addModel(modelUlulo);
+        p->addModel(modelTabes);
+        p->addModel(modelLustro);
+        p->addModel(modelBulla);
+        p->addModel(modelPerge);
+        p->addModel(modelVorax);
+        p->addModel(modelTextor);
+        p->addModel(modelImber);
+        p->addModel(modelSylla);
+        p->addModel(modelGuttur);
+        p->addModel(modelVespae);
+        p->addModel(modelQuadrare);
+        p->addModel(modelVestigia);
+        p->addModel(modelAntrum);
+        p->addModel(modelCaligo);
+        p->addModel(modelRaucus);
+        p->addModel(modelTundo);
+        p->addModel(modelCartilago);
+        p->addModel(modelScrupea);
+        p->addModel(modelViginti);
+        p->addModel(modelGradus);
+        p->addModel(modelMateriae);
+        p->addModel(modelAether);
+        p->addModel(modelArtifex);
+        p->addModel(modelVates);
+        p->addModel(modelRadix);
+        p->addModel(modelOlim);
+        p->addModel(modelNodi);
+        p->addModel(modelRubigo);
+        p->addModel(modelSpira);
     }
 }
 
@@ -2744,6 +2803,109 @@ static void initStatic__HetrickCV()
 #undef modelMinMax
 #undef PanelBaseWidget
 #undef InverterWidget
+    }
+}
+
+static void initStatic__InfNoise()
+{
+    Plugin* const p = new Plugin;
+    pluginInstance__InfNoise = p;
+
+    // spl name must be the plugins/ DIRECTORY name (asset::pluginPath
+    // joins plugins/<name>); the plugin.json slug (InfiniteNoise) is read
+    // from the manifest, not used here.
+    const StaticPluginLoader spl(p, "InfNoise");
+    if (spl.ok())
+    {
+#define modelFlipFlop modelInfNoiseFlipFlop
+        p->addModel(modelADREnvelope);
+        p->addModel(modelADSDREnvelope);
+        p->addModel(modelArm3XY);
+        p->addModel(modelAutoScale4);
+        p->addModel(modelBernoulliSwitch);
+        p->addModel(modelBitsToValue);
+        p->addModel(modelChaos);
+        p->addModel(modelClamp4);
+        p->addModel(modelCombine);
+        p->addModel(modelCrossFadeSwitch1to4);
+        p->addModel(modelCrossFadeSwitch4to1);
+        p->addModel(modelCvToggle8);
+        p->addModel(modelCvToGt);
+        p->addModel(modelCvToGtTr8);
+        p->addModel(modelCxFade1x2);
+        p->addModel(modelCxFade4x1);
+        p->addModel(modelDelta4);
+        p->addModel(modelEnvelopePhaseExpander);
+        p->addModel(modelFlipFlop);
+        p->addModel(modelFold);
+        p->addModel(modelIncDecOffset);
+        p->addModel(modelLCMP2);
+        p->addModel(modelLCMP6x2);
+        p->addModel(modelLFO1);
+        p->addModel(modelManCV8I);
+        p->addModel(modelManCV8II);
+        p->addModel(modelManGate8);
+        p->addModel(modelManMix4I);
+        p->addModel(modelManMix4II);
+        p->addModel(modelManMix4st);
+        p->addModel(modelManMute8);
+        p->addModel(modelManPush2);
+        p->addModel(modelManTrGtCv);
+        p->addModel(modelManTrigger8);
+        p->addModel(modelMatrixMix4x4Stereo);
+        p->addModel(modelMatrixMix5x5);
+        p->addModel(modelMerge2x4);
+        p->addModel(modelMergeMult4);
+        p->addModel(modelMult2x4);
+        p->addModel(modelMute2);
+        p->addModel(modelOnOffSwitch);
+        p->addModel(modelPatch);
+        p->addModel(modelPhaseDrivenLFO);
+        p->addModel(modelPolyLCMP);
+        p->addModel(modelPolyMerge);
+        p->addModel(modelPolyOffset);
+        p->addModel(modelPolyQuad);
+        p->addModel(modelPolyScale);
+        p->addModel(modelPolyShuffle);
+#define modelPolySplit modelInfNoisePolySplit
+        p->addModel(modelPolySplit);
+#undef modelPolySplit
+        p->addModel(modelPolyStereo);
+        p->addModel(modelPolyTweakI);
+        p->addModel(modelPolyTweakII);
+        p->addModel(modelPolyVCMP);
+        p->addModel(modelRandom4);
+        p->addModel(modelRandomCurve);
+        p->addModel(modelRingMod3);
+        p->addModel(modelSampleAndUpdate);
+        p->addModel(modelSHTH2);
+        p->addModel(modelSHTH2x4);
+        p->addModel(modelSign);
+        p->addModel(modelSign4I);
+        p->addModel(modelSign4II);
+        p->addModel(modelSlew2);
+        p->addModel(modelSlew4);
+        p->addModel(modelSLFO4ss);
+        p->addModel(modelSLFO4st);
+        p->addModel(modelSlopeDetector2);
+        p->addModel(modelStereoBalancePan);
+        p->addModel(modelTinyLCMP2);
+        p->addModel(modelTLFO);
+        p->addModel(modelTuringMachine);
+        p->addModel(modelTweak2I);
+        p->addModel(modelTweak2II);
+        p->addModel(modelTweak4I);
+        p->addModel(modelTweak4II);
+        p->addModel(modelTweak8);
+        p->addModel(modelValueToBits);
+        p->addModel(modelVCA2);
+        p->addModel(modelVCA4I);
+        p->addModel(modelVCA4II);
+        p->addModel(modelVCMP1);
+        p->addModel(modelVCMP2I);
+        p->addModel(modelVCMP2II);
+        p->addModel(modelWaveShaper2);
+#undef modelFlipFlop
     }
 }
 
@@ -3125,6 +3287,45 @@ static void initStatic__MockbaModular()
     }
 }
 
+static void initStatic__Moffenzeef()
+{
+    Plugin* const p = new Plugin;
+    pluginInstance__Moffenzeef = p;
+
+    const StaticPluginLoader spl(p, "Moffenzeef");
+    if (spl.ok())
+    {
+#define modelCount modelMoffenzeefCount
+        p->addModel(modelBadIdea9);
+        p->addModel(modelBadIdea1800);
+        p->addModel(modelBobcat);
+        p->addModel(modelBusMult);
+        p->addModel(modelCount);
+        p->addModel(modelDeviant);
+        p->addModel(modelDialUp);
+        p->addModel(modelGMO);
+        p->addModel(modelKriket);
+        p->addModel(modelMito);
+        p->addModel(modelMoffenmix);
+        p->addModel(modelMongrel);
+        p->addModel(modelMuskrat);
+        p->addModel(modelSimplify);
+        p->addModel(model_2hpBlank);
+        p->addModel(model_14hpBlank);
+        p->addModel(modelSwarm);
+        p->addModel(modelINTENSIFIES);
+        p->addModel(modelTheRunner);
+        p->addModel(modelStargazer);
+        p->addModel(modelKleztizer);
+        p->addModel(modelTantz);
+        p->addModel(modelQuadDeviant);
+        p->addModel(modelTehom);
+        p->addModel(modelDitDit);
+        p->addModel(modelParticles);
+#undef modelCount
+    }
+}
+
 static void initStatic__Mog()
 {
     Plugin* const p = new Plugin;
@@ -3297,6 +3498,23 @@ static void initStatic__Orbits()
     {
         p->addModel(modelRareBreeds_Orbits_Eugene);
         p->addModel(modelRareBreeds_Orbits_Polygene);
+    }
+}
+
+static void initStatic__PatchableDevices()
+{
+    Plugin* const p = new Plugin;
+    pluginInstance__PatchableDevices = p;
+
+    const StaticPluginLoader spl(p, "PatchableDevices");
+    if (spl.ok())
+    {
+        p->addModel(modelComparingCounter);
+        p->addModel(modelDigitalChaoticSystem);
+        p->addModel(modelDualIntegrator);
+        p->addModel(modelNonlinearIntegrator);
+        p->addModel(modelVoltageSequencer);
+        p->addModel(modelWindowGenerators);
     }
 }
 
@@ -4056,6 +4274,8 @@ void initStaticPlugins()
     initStatic__Extratone();
     initStatic__FehlerFabrik();
     initStatic__forsitan();
+    initStatic__Moffenzeef();
+    initStatic__PatchableDevices();
     initStatic__GlueTheGiant();
     initStatic__GoodSheperd();
     initStatic__GrandeModular();
@@ -4063,6 +4283,7 @@ void initStaticPlugins()
     initStatic__halfagiraf();
     initStatic__HamptonHarmonics();
     initStatic__HetrickCV();
+    initStatic__InfNoise();
     initStatic__ImpromptuModular();
     initStatic__ihtsyn();
     initStatic__JW();

@@ -20,12 +20,57 @@
 #include "widget/event.hpp"
 
 #include <GLFW/glfw3.h>
+#include <app/Scene.hpp>
+#include <window/Window.hpp>
 
 typedef struct GLFWcursor {
     DGL_NAMESPACE::MouseCursor cursorId;
 } GLFWcursor;
 
 GLFWAPI int glfwGetKeyScancode(int) { return 0; }
+
+// Window attribute queries: plugins (SignalFunctionSet's hover-play gating,
+// Moffenzeef's Particles overlay) call these directly. GLFW_FOCUSED reports
+// "focused" so hover-driven behavior keeps working; other attributes report
+// their neutral default (not maximized/iconified, not hidden).
+GLFWAPI int glfwGetWindowAttrib(GLFWwindow*, const int attrib)
+{
+    switch (attrib)
+    {
+        case GLFW_FOCUSED:
+        case GLFW_VISIBLE:
+            return GLFW_TRUE;
+        default:
+            return GLFW_FALSE;
+    }
+}
+
+// Report the Rack scene mouse position, converted the same way the Rack
+// window converts glfw cursor callbacks (Window.cpp: scene = win /
+// (pixelRatio / windowRatio)), so the values round-trip to window pixels.
+GLFWAPI void glfwGetCursorPos(GLFWwindow*, double* const xpos, double* const ypos)
+{
+    if (xpos != nullptr)
+        *xpos = 0.0;
+    if (ypos != nullptr)
+        *ypos = 0.0;
+
+    const CardinalPluginContext* const context = static_cast<CardinalPluginContext*>(APP);
+    DISTRHO_SAFE_ASSERT_RETURN(context != nullptr,);
+    DISTRHO_SAFE_ASSERT_RETURN(context->tlw != nullptr,);
+    DISTRHO_SAFE_ASSERT_RETURN(context->scene != nullptr,);
+
+    // Full Scene/Window types come from <app/Scene.hpp> and
+    // <window/Window.hpp> included above.
+    const rack::window::Window* const win = context->window;
+    const float ratio = win != nullptr ? win->pixelRatio / win->windowRatio : 1.0f;
+    const rack::math::Vec mousePos = context->scene->getMousePos();
+    if (xpos != nullptr)
+        *xpos = mousePos.x * ratio;
+    if (ypos != nullptr)
+        *ypos = mousePos.y * ratio;
+}
+
 
 GLFWAPI const char* glfwGetClipboardString(GLFWwindow*)
 {

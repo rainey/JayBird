@@ -1,0 +1,26 @@
+# patches/forsitan-modulare — build-time submodule patch
+#
+# ForsitanModulare v2.17.0 introduced two "Set kits folder…" menu items that
+# open a blocking osdialog_file(OSDIALOG_OPEN_DIR, ...) directory picker
+# (src/pellicula.cpp, src/vates.cpp). Cardinal's plugin build stubs osdialog
+# out (include/osdialog-stub/osdialog.h, upstream Cardinal commit 83ba2ca),
+# so osdialog_file does not link.
+#
+# Applies to: forsitan-modulare c642f12 (plugin.json 2.17.0).
+# Regenerate after moving the pin:
+#   git -C plugins/forsitan-modulare diff > patches/forsitan-modulare/osdialog-async.patch
+
+submodule: plugins/forsitan-modulare
+reason: osdialog is stubbed out in Cardinal plugin builds; convert the two
+  kits-folder directory pickers to async_dialog_filebrowser
+  (include/common.hpp, declared via the rack.hpp include chain).
+notes: >-
+  Deviations forced by the async API (same treatment as
+  patches/SignalFunctionSet/osdialog-async.patch):
+  - OSDIALOG_OPEN_DIR (directory picker) does not exist in the async API;
+    the sites now open a save dialog (default name "kit", starting in the
+    current kits folder) and use the chosen file's directory
+    (system::getDirectory) as the kits folder.
+  - The vates.cpp site additionally calls refreshKits() in the dialog
+    callback, preserving the original post-pick behavior.
+  - Upstream Rack behavior is unchanged in the #else branches.

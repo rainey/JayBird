@@ -1,0 +1,30 @@
+# patches/InfNoise — build-time submodule patch
+#
+# Three upstream-compile incompatibilities under Cardinal (v2.0.5, 44859c8),
+# all guarded by USING_CARDINAL_NOT_RACK (upstream Rack behavior unchanged):
+#
+# 1. plugin.hpp + EnvelopePhaseExpander.cpp: InfNoise expects the templated
+#    createIndexSubmenuItem<T>() to RETURN TMenuItem* (upstream Rack's
+#    signature); JayBird's Rack fork returns ui::MenuItem*. The returned
+#    item is a TMenuItem subclass (helpers.hpp builds `struct Item :
+#    TMenuItem`), so static_cast<TMenuItem*> is correct; plain assignment
+#    fails with "invalid conversion from ui::MenuItem* to
+#    DynamicDisabledMenuItem*".
+# 2. RingMod3.cpp: rack::string::f takes const char* (printf-style); the
+#    code passes std::string built by concatenation ("A%d"+aNorm) — needs
+#    .c_str(). Upstream Rack may accept std::string via overload; our fork
+#    doesn't.
+#
+# Applies to: InfNoise 44859c8 (plugin.json 2.0.5, slug InfiniteNoise).
+# Regenerate after moving the pin:
+#   git -C plugins/InfNoise diff > patches/InfNoise/cardinal-compat.patch
+
+submodule: plugins/InfNoise
+reason: >-
+  createIndexSubmenuItem<T> returns ui::MenuItem* in JayBird's Rack fork
+  (upstream returns TMenuItem*), and rack::string::f is const char* only;
+  both break InfNoise compilation under Cardinal.
+notes: >-
+  Deviations: none functional — static_cast on a genuinely-returned
+  TMenuItem subclass, and c_str() on a format string. Behavior identical
+  on both Rack and Cardinal.

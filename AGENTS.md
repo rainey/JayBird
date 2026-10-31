@@ -42,6 +42,10 @@ lives in `utils/jaybird/` (`gen.py`, `gen_manifest.py`, `licensing.py`,
    unavailable inside the sandbox. `patches/submodule-patches.mk` handles
    apply/reverse-check/unpatch with `patch`; don't "simplify" it back to
    `git apply`.
+6. **`src/Cardinal/glfw.cpp` is a SYMLINK to `src/custom/glfw.cpp`.**
+   `git add src/Cardinal/glfw.cpp` stages the symlink (a no-op for
+   content!) — always `git add src/custom/glfw.cpp`. Check `git show HEAD
+   --stat` after committing changes to it.
 
 ## Importing a new plugin — step by step
 
@@ -99,6 +103,12 @@ also defines `defaultTheme`).
 **Patch hook.** If the plugin has any patch, add
 `| submodule-patches` (order-only prereq) **on the same line** as the real
 prerequisite of its object rule — splitting it to the next line loses it.
+This also applies to objects that compile *submodule headers or copied
+submodule code*, not just the plugin's own sources:
+`plugins.cpp.o`, `plugins-mini.cpp.o`, `noplugins.cpp.o`,
+`plugins-jaybird.cpp.o`, and every `<Name>-shim.cpp.o` rule needs it,
+because a registration-file-compiled plugin's rename macros / patched
+headers must be visible there too.
 
 ### 3. Handle Cardinal's stubs / removed APIs
 
@@ -131,6 +141,17 @@ Cardinal plugin builds differ from Rack in ways that break upstream code:
   `STRICT_NO_PHONE_HOME=y` config. No-network plugins must be marked
   `phone_home: false` *after actually verifying* (grep the source for
   curl/http/sockets), not assumed.
+- **glfw direct calls.** Cardinal's headless/plugin context implements only
+  a subset of glfw (see `src/custom/glfw.cpp`, symlinked as
+  `src/Cardinal/glfw.cpp`). Plugins that call glfw directly
+  (`glfwGetWindowAttrib`, `glfwGetCursorPos`, …) need stubs added there —
+  not submodule patches. Precedents: `glfwGetWindowAttrib` (report
+  GLFW_FOCUSED/VISIBLE true), `glfwGetCursorPos` (round-trip the Rack scene
+  mouse position through Window's `pixelRatio / windowRatio` conversion).
+  Gotcha: `context.hpp` only forward-declares `rack::app::Scene` and
+  `rack::window::Window` — a stub that dereferences them must include
+  `<app/Scene.hpp>` and `<window/Window.hpp>` in that TU or it fails with
+  `invalid use of incomplete type` in a clean sandbox.
 
 ### 4. Record the patch (if any)
 
@@ -150,6 +171,13 @@ Registration is generated. Run:
 ```sh
 python3 utils/jaybird/gen.py            # regenerates Kconfig.gen + plugins-jaybird.cpp
 ```
+
+The `StaticPluginLoader spl(p, …)` call in `plugins/plugins.cpp` must use
+the **`plugins/` directory name**, never the `plugin.json` slug —
+`asset::pluginPath` joins `plugins/<name>`, so e.g. InfNoise's slug
+"InfiniteNoise" would look for a nonexistent `plugins/InfiniteNoise`
+directory. (gen.py copies any model-rename `#define`/`#undef` pairs from
+the `<NAME>_CUSTOM` list into `plugins-jaybird.cpp` automatically.)
 
 Plugin selection state comes from `kconfig/manifest.yaml` (hand-curated:
 `artwork_license`, `phone_home`). Generate a draft entry with
@@ -171,11 +199,13 @@ python3 utils/jaybird/buildability.py --filter <Name> --force --keep
 
 # b) symbol audit of the resulting archive — plugins.a does NOT resolve
 #    symbols, so undefined refs are only caught here or at final link:
-nm -A --defined-only plugins.a | grep <Name>       # definitions exist
-nm -A -u plugins.a | grep -i <name>                # cross-check leftovers
+./utils/jaybird/linkcheck.py                       # cross-TU missing/dup analysis
+./utils/jaybird/linkcheck.py --archive plugins/plugins-mini.a
+#    (linkcheck is a mandatory gate after every plugins.a build; see the
+#    strictness note in the gotchas archive below)
 
 # c) the real test: a full Cardinal link (see warning below)
-nix build .#test --cores 4        # or: make cardinal locally if deps are set up
+nix build .#test --cores 2        # or: make cardinal locally if deps are set up
 ```
 
 **Warning that has bitten us repeatedly:** `make -C plugins plugins.a` and
@@ -196,15 +226,19 @@ mysterious undefined symbols from the stale ones.
 
 ```sh
 git add plugins/<Name> plugins/Makefile plugins/plugins.cpp patches/<Name> ...
-make nix-update-rev && git add nix/source-rev
-git commit   # submodule pin + integration + patches + rev pin together
+git commit
+make nix-update-rev && git add nix/source-rev && git commit --amend --no-edit
 ```
+
+The rev pin must be written **after** the commit it pins (so it contains
+that commit's hash), hence the amend. Running `make nix-update-rev` before
+the commit pins a stale tree and the nix build fetches the wrong source.
 
 (Dirty `plugins/surgext` and `src/Rack` submodules are pre-existing; leave
 them unstaged.) Then rebuild the affected flake outputs:
 
 ```sh
-nix build .#jaybird --cores 4   # and/or .#test / .#mini
+nix build .#jaybird --cores 2   # and/or .#test / .#mini
 ```
 
 ## Major findings / gotchas archive
@@ -243,11 +277,21 @@ These were each discovered the hard way; don't rediscover them:
   the upstream Makefile's selection.
 - **Repo-owned shims.** When an excluded registration file also carries
   live code that other TUs reference (CountModula's theme globals,
-  settings helpers, expander positioning), provide it in a repo-owned
-  `plugins/<Name>-shim.cpp` with its own explicit rule, copying the
-  upstream code verbatim (minus registration) with the same `-D` renames,
-  plus a header comment pointing at the upstream file to re-sync on pin
-  moves. See `plugins/CountModula-shim.cpp`.
+  InfNoise's settings helpers and `InfNoiseModuleWidget::step()` /
+  `syncInfNoiseGlobalSettings()` / `applyPortPrefixes()`), provide it in a
+  repo-owned `plugins/<Name>-shim.cpp` with its own explicit rule, copying
+  the upstream code verbatim (minus registration) with the same `-D`
+  renames, plus a header comment pointing at the upstream file to re-sync
+  on pin moves. See `plugins/CountModula-shim.cpp`,
+  `plugins/InfNoise-shim.cpp`. Rules:
+  - The shim does **not** define `pluginInstance` — Cardinal's generated
+    `plugins-jaybird.cpp` defines `pluginInstance__<Plugin>`.
+  - Includes must be **path-qualified** into the submodule
+    (`#include "InfNoise/src/plugin.hpp"`): a bare `"plugin.hpp"` resolves
+    to Rack's `src/Rack/include/plugin.hpp` instead.
+  - When copying code from the upstream registration file, copy *every*
+    out-of-line definition other TUs reference — scan the final-link
+    errors, and run linkcheck (below) rather than eyeballing.
 - **Generated-file extern/definition state must match the Makefile.**
   gen.py emits `Plugin* pluginInstance__X;` definitions; if you switch a
   plugin to the "registration file compiled" style, gen.py/plugins.cpp
@@ -264,13 +308,39 @@ These were each discovered the hard way; don't rediscover them:
 - **Cap nix parallelism on shared/interactive machines.** `nix build` uses
   all cores by default and its build processes are daemon-owned at nice 0
   (renicing them needs root), so a full-speed build makes the desktop
-  unusable. Pass an explicit cap, e.g. `nix build .#<out> --cores 4`.
+  unusable. Standard practice: `nix build .#<out> --cores 2`.
 - **Final-link symbol classes to grep for when a link fails:** multiple
   definition of `pluginInstance__*` (registration file compiled twice),
   undefined `<Name><Helper>` (missing source file or excluded-but-referenced
   code), undefined `init__*` / `std::basic_ios<...>::init__*` (blanket
-  init rename). The linker error names the defining
+  init rename), undefined `glfw*` (plugin calls glfw directly — add a
+  stub to `src/custom/glfw.cpp`). The linker error names the defining
   `plugins.a(<file>.cpp.o)` — read it before touching anything.
+- **linkcheck.py strictness is load-bearing.** Its user-symbol rules
+  (`utils/jaybird/linkcheck.py`) require C++-mangled *user-level* symbols
+  (`_ZN<digits>`, `_ZNK<digits>`, `_ZT[ISV][0-9N]`, `_Z<digits>`) to be
+  defined in the archive or allowlisted in `USER_MANGLED_EXTERNALS`.
+  Never restore the old catch-all `^_Z[A-Z]` external rule: it
+  auto-classified every mangled user symbol as "provided at the final
+  link" and hid real missing-definition bugs (the InfNoise widget-method
+  failure reached the nix final link because of it). When the stricter
+  rules surface a genuinely-external symbol, add a *specific* rule for it
+  (e.g. `^_ZT[ISV]N4rack`, surge's `Oscillator`/`TwistOscillator`
+  typeinfo), not a broad one.
+- **Build-all mode masks nothing; profiles mask everything.** Profile
+  builds (`#test`, `#mini`) deselect most plugins, so bugs like the
+  `Recursive variable 'PLUGIN_FILES'` make recursion only surface in
+  build-all (`#jaybird` / `#full`). The fix lives at `plugins/Makefile`'s
+  keep-sources re-add: `PLUGIN_FILES := $(PLUGIN_FILES)` forces the
+  simply-expanded variable before appending. Treat a green `#full` as the
+  only "everything compiles" signal.
+- **Nix sandbox compiles differ from local incremental compiles.** A stub
+  or shim that compiled fine against the local stale `build/` can fail in
+  a fresh sandbox with `invalid use of incomplete type` (missing
+  includes that other TUs happened to pull in) or other clean-environment
+  errors. Before committing such a change, delete the affected object
+  (`rm build/Cardinal/glfw.cpp.o` etc.) and rebuild it, or trust only the
+  nix build.
 
 ## Useful commands
 
@@ -278,11 +348,12 @@ These were each discovered the hard way; don't rediscover them:
 python3 utils/jaybird/gen.py [kconfig/configs/<profile>.config]   # regenerate
 python3 utils/jaybird/gen_manifest.py                            # draft manifest entries
 python3 utils/jaybird/buildability.py [--filter X] [--drilldown] [--restore]
+./utils/jaybird/linkcheck.py [--archive plugins/plugins-mini.a]   # symbol audit
 ./utils/jaybird/audit-submodule-pins.sh                          # pins vs patches
 make -f patches/submodule-patches.mk submodule-{patches,unpatch,status}
 make -C plugins plugins.a                                        # quick archive build
-nix build .#jaybird --cores 4                                    # full build incl. link
-nix build .#full-ccache --cores 4 \
+nix build .#jaybird --cores 2                                    # full build incl. link
+nix build .#full-ccache --cores 2 \
   --option extra-sandbox-paths /var/tmp/jaybird-ccache           # ccache-backed build
 nix flake show                                                   # sanity-check the flake
 ```
@@ -291,9 +362,10 @@ nix flake show                                                   # sanity-check 
 
 nix caches whole-derivation *outputs*, never partial build artifacts: any
 source/rev/config change → new drv hash → make runs from scratch in a
-fresh sandbox (~2h for build-all at `--cores 4`), even though all *input*
-derivations (prefetched deps, toolchain, libraries) are store-cached and
-reused. Local `build/` object reuse does not exist inside the sandbox.
+fresh sandbox (~2h for build-all even at `--cores 2`), even though all
+*input* derivations (prefetched deps, toolchain, libraries) are
+store-cached and reused. Local `build/` object reuse does not exist inside
+the sandbox.
 
 The mitigation is the `-ccache` output variants (`jaybird-ccache`,
 `full-ccache`, and `<profile>-ccache` for every profile): compiles run
@@ -301,7 +373,7 @@ through ccache into the host dir `/var/tmp/jaybird-ccache` (0777, on
 persistent disk), which must be exposed to the sandbox per invocation:
 
 ```sh
-nix build .#full-ccache --cores 4 \
+nix build .#full-ccache --cores 2 \
   --option extra-sandbox-paths /var/tmp/jaybird-ccache
 ```
 
