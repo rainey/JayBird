@@ -13,7 +13,7 @@ down to individual modules — get built. Generated artifacts adapt the build:
 
 - `kconfig/Kconfig.gen` — per-plugin/per-module menu fragments (generated)
 - `plugins/plugins-jaybird.cpp` — filtered static registration file (generated)
-- `kconfig/configs/{default,mini,test}.config` — selection profiles
+- `kconfig/configs/{default,mini,test,full}.config` — selection profiles
 - `nix/package.nix` + flake outputs `.#jaybird` (build-all), `.#test`, `.#mini`
 
 New plugins arrive as **git submodules** under `plugins/<PluginName>`. The
@@ -211,6 +211,17 @@ nix build .#jaybird --cores 4   # and/or .#test / .#mini
 
 These were each discovered the hard way; don't rediscover them:
 
+- **phone_home plugins are silently absent from strict profiles.**
+  gen.py emits `depends on !STRICT_NO_PHONE_HOME` for any plugin with
+  `phone_home: true` in kconfig/manifest.yaml, and every profile sets
+  `CONFIG_STRICT_NO_PHONE_HOME=y` — so those plugins are structurally
+  deselected everywhere: not compiled, no manifest shipped, invisible in
+  the plugin browser. If a newly integrated plugin "doesn't show up",
+  check this gate first (`grep phone_home kconfig/manifest.yaml`). The
+  `full.config` profile is the escape hatch (STRICT_NO_PHONE_HOME unset).
+  Current phone_home: SignalFunctionSet only (fill.cpp downloads from
+  drum-patterns.com, but strictly user-triggered — no automatic calls).
+
 - **GCC 16 + blanket `-Dinit=` renames break the link.** Newer libstdc++
   no longer inline-defines `std::basic_ios::init` in headers, so any TU
   compiled with `-Dinit=init__X` that constructs an iostream/fstream emits
@@ -271,6 +282,39 @@ python3 utils/jaybird/buildability.py [--filter X] [--drilldown] [--restore]
 make -f patches/submodule-patches.mk submodule-{patches,unpatch,status}
 make -C plugins plugins.a                                        # quick archive build
 nix build .#jaybird --cores 4                                    # full build incl. link
+nix build .#full-ccache --cores 4 \
+  --option extra-sandbox-paths /var/tmp/jaybird-ccache           # ccache-backed build
 nix flake show                                                   # sanity-check the flake
 ```
+
+## nix build caching (why rebuilds are full rebuilds, and the ccache path)
+
+nix caches whole-derivation *outputs*, never partial build artifacts: any
+source/rev/config change → new drv hash → make runs from scratch in a
+fresh sandbox (~2h for build-all at `--cores 4`), even though all *input*
+derivations (prefetched deps, toolchain, libraries) are store-cached and
+reused. Local `build/` object reuse does not exist inside the sandbox.
+
+The mitigation is the `-ccache` output variants (`jaybird-ccache`,
+`full-ccache`, and `<profile>-ccache` for every profile): compiles run
+through ccache into the host dir `/var/tmp/jaybird-ccache` (0777, on
+persistent disk), which must be exposed to the sandbox per invocation:
+
+```sh
+nix build .#full-ccache --cores 4 \
+  --option extra-sandbox-paths /var/tmp/jaybird-ccache
+```
+
+- Without the `--option`, the build still succeeds but the cache is
+  ephemeral (in-sandbox) — the build log says so loudly.
+- Cold cache ≈ same duration as a plain build (one-time priming cost).
+  Warm cache reduces the next rebuild to the actually-changed objects
+  (rule-flag changes still miss — same as make) plus the full link.
+- Cache hits require an unchanged nixpkgs rev (the compiler store path
+  is part of the hash) — a nixpkgs bump is a cache-miss event.
+- Output content is byte-identical to the plain outputs; only the drv
+  (and store path) differ.
+- Local non-nix builds are unaffected; they keep their own persistent
+  `build/` incremental state.
+
 

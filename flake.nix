@@ -4,6 +4,10 @@
 # Usage:
 #   nix build .#jaybird        # build-all
 #   nix build .#test           # profile kconfig/configs/test.config
+#   nix build .#full           # like build-all, plus phone-home plugins (no STRICT_NO_PHONE_HOME)
+#   nix build .#<out>-ccache --option extra-sandbox-paths /var/tmp/jaybird-ccache
+#                              # same, compiling through ccache (fast rebuilds;
+#                              # pass the sandbox option or caching is ephemeral)
 #   nix run .#menuconfig       # edit kconfig/configs/default.config
 #
 # Commit changes before building: flake sources use builtins.fetchGit.
@@ -48,11 +52,14 @@
         system: (nixpkgsFor.${system}.callPackage ./nix/prefetch.nix { })
       );
 
-      # Named profiles live in kconfig/configs/*.config
+      # Named profiles live in kconfig/configs/*.config. Pass ccacheDir
+      # (non-null) to emit `<name>-ccache` variants that compile through
+      # ccache with a host-side cache directory.
       profilePackages =
-        pkgs: src: deps:
+        { pkgs, src, deps, ccacheDir ? null }:
         let
           inherit (pkgs) lib;
+          suffix = if ccacheDir == null then "" else "-ccache";
           configs = lib.filterAttrs (
             name: type: type == "regular" && lib.hasSuffix ".config" name
           ) (builtins.readDir ./kconfig/configs);
@@ -60,11 +67,12 @@
         lib.listToAttrs (
           lib.mapAttrsToList (
             name: _:
-            lib.nameValuePair (lib.removeSuffix ".config" name) (
+            lib.nameValuePair (lib.removeSuffix ".config" name + suffix) (
               callJaybird pkgs {
                 srcArg = src;
                 prefetchedDeps = deps;
                 configPath = ./kconfig/configs + "/${name}";
+                inherit ccacheDir;
               }
             )
           ) configs
@@ -78,8 +86,19 @@
         in
         {
           jaybird = callJaybird pkgs { srcArg = self-src.${system}; prefetchedDeps = prefetchDeps.${system}; };
+          jaybird-ccache = callJaybird pkgs {
+            srcArg = self-src.${system};
+            prefetchedDeps = prefetchDeps.${system};
+            ccacheDir = "/var/tmp/jaybird-ccache";
+          };
           default = self.packages.${system}.jaybird;
-        }        // profilePackages pkgs self-src.${system} prefetchDeps.${system}
+        }        // profilePackages { inherit pkgs; src = self-src.${system}; deps = prefetchDeps.${system}; }
+                  // profilePackages {
+                    inherit pkgs;
+                    src = self-src.${system};
+                    deps = prefetchDeps.${system};
+                    ccacheDir = "/var/tmp/jaybird-ccache";
+                  }
       );
 
       apps = forAllSystems (

@@ -12,6 +12,7 @@
   stdenv,
   alsa-lib,
   carla,
+  ccache,
   cmake,
   dbus,
   fftwFloat,
@@ -39,6 +40,14 @@
   prefetchedDeps,
   configPath ? null,
   headless ? false,
+
+  # Host-side ccache directory (e.g. "/var/tmp/jaybird-ccache"). When set,
+  # compiles run through ccache; the directory must be exposed to the
+  # sandbox with:  --option extra-sandbox-paths <dir>  (and be writable by
+  # the nixbld build users). Falls back to an ephemeral in-sandbox cache
+  # (with a warning) when the host dir is unavailable, so builds never
+  # fail over a missing bind mount.
+  ccacheDir ? null,
 }:
 
 stdenv.mkDerivation (finalAttrs: {
@@ -79,13 +88,40 @@ stdenv.mkDerivation (finalAttrs: {
   enableParallelBuilding = true;
   strictDeps = true;
 
+  # No CC := / CXX := overrides exist in the Makefiles, so exported env
+  # vars win over their `?=` fallbacks. Multi-word values are dangerous:
+  # several vendored dep Makefiles recurse with an unquoted `CC=$(CC)`
+  # (deps/Makefile DEP_MAKE), which turns `CC="ccache cc"` into a stray
+  # "cc" make goal. So instead of a two-word CC/CXX, generate per-build
+  # single-word shims that call ccache with the absolute compiler path,
+  # and let CC/CXX stay plain names. Also covers carla and every other
+  # recursive dep build.
+  preBuild = lib.optionalString (ccacheDir != null) ''
+    mkdir -p "$NIX_BUILD_TOP/ccshims"
+    for t in cc gcc c++ g++; do
+      orig="$(command -v "$t")" || exit 1
+      printf '#!/bin/sh\nexec ccache %q "$@"\n' "$orig" > "$NIX_BUILD_TOP/ccshims/$t"
+      chmod +x "$NIX_BUILD_TOP/ccshims/$t"
+    done
+    export PATH="$NIX_BUILD_TOP/ccshims:$PATH"
+    export CC=cc CXX=g++
+    export CCACHE_MAXSIZE=10G
+    if mkdir -p ${lib.escapeShellArg ccacheDir} 2>/dev/null && [ -w ${lib.escapeShellArg ccacheDir} ]; then
+      export CCACHE_DIR=${lib.escapeShellArg ccacheDir}
+      echo "ccache: using host cache ${ccacheDir}"
+    else
+      export CCACHE_DIR="$NIX_BUILD_TOP/ccache"
+      echo "ccache WARNING: host cache unavailable (pass --option extra-sandbox-paths ${ccacheDir} — and add 'extra-sandbox-paths = ${ccacheDir}' to /etc/nix/nix.conf, client options are ignored by the untrusted daemon); cache is ephemeral for this build"
+    fi
+  '';
+
   nativeBuildInputs = [
     cmake
     file
     pkg-config
     makeWrapper
     (python3.withPackages (p: [ p.pyyaml ]))
-  ];
+  ] ++ lib.optionals (ccacheDir != null) [ ccache ];
 
   buildInputs = [
     alsa-lib
@@ -159,6 +195,7 @@ stdenv.mkDerivation (finalAttrs: {
 
   passthru = {
     inherit configPath;
+    inherit ccacheDir;
   };
 
   meta = with lib; {
