@@ -918,12 +918,16 @@ void addThemeMenuItems(Menu*, ModuleTheme*) {}
 
 // SignalFunctionSet
 #define modelArrange modelSignalFunctionSetArrange
+#define modelBeat modelSignalFunctionSetBeat
 #define modelDrift modelSignalFunctionSetDrift
+#define modelRecord modelSignalFunctionSetRecord
 #define modelShift modelSignalFunctionSetShift
 #define modelSigma modelSignalFunctionSetSigma
 #include "SignalFunctionSet/src/plugin.hpp"
 #undef modelArrange
+#undef modelBeat
 #undef modelDrift
+#undef modelRecord
 #undef modelShift
 #undef modelSigma
 
@@ -3791,7 +3795,9 @@ static void initStatic__SignalFunctionSet()
     if (spl.ok())
     {
 #define modelArrange modelSignalFunctionSetArrange
+#define modelBeat modelSignalFunctionSetBeat
 #define modelDrift modelSignalFunctionSetDrift
+#define modelRecord modelSignalFunctionSetRecord
 #define modelShift modelSignalFunctionSetShift
 #define modelSigma modelSignalFunctionSetSigma
         p->addModel(modelDrift);
@@ -3849,7 +3855,9 @@ static void initStatic__SignalFunctionSet()
         p->addModel(modelCistern);
         p->addModel(modelWheel);
 #undef modelArrange
+#undef modelBeat
 #undef modelDrift
+#undef modelRecord
 #undef modelShift
 #undef modelSigma
     }

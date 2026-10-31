@@ -1166,8 +1166,17 @@ PLUGIN_FILES += $(filter-out SignalFunctionSet/src/plugin.cpp,$(wildcard SignalF
 PLUGIN_FILES += $(wildcard SignalFunctionSet/src/msfa/*.cc)
 PLUGIN_FILES += SignalFunctionSet/src/miniz.c
 
-# modules/types which are present in other plugins
-SFS_CUSTOM = Arrange Drift Shift Sigma $(DRWAV)
+# modules/types which are present in other plugins. All of these collide
+# with same-named global-namespace classes in other plugins, producing
+# weak-symbol link-order hazards: the linker keeps the first definition,
+# so a preview of one plugin's widget can run another plugin's member
+# function on an incompatible object layout (crash proven for
+# RecordWidget::step — Moffenzeef Tehom.cpp knob vs SignalFunctionSet
+# record.cpp ModuleWidget; symbol-level audit also flagged ArrangeDisplay
+# [JW-Modules], Beat [Orbits], NoteParamQuantity [voxglitch]).
+# Beat/Record strings and comments elsewhere in SFS are unaffected: -D
+# renames only touch identifier tokens.
+SFS_CUSTOM = Arrange Drift Shift Sigma Beat Record ArrangeDisplay NoteParamQuantity $(DRWAV)
 
 # --------------------------------------------------------------
 # Starling Via
