@@ -660,6 +660,18 @@ PLUGIN_FILES += $(filter-out CatroModulo/src/CatroModulo.cpp,$(wildcard CatroMod
 CATROMODULO_CUSTOM = LowFrequencyOscillator NumDisplayWidget
 
 # --------------------------------------------------------------
+# cyberline
+#
+# First-party suite (MIT): 4 modules, programmatic panels, no assets.
+# src/plugin.cpp is the registration file (init + pluginInstance) and is
+# excluded; its model externs live in src/plugin.hpp, which plugins.cpp
+# includes. No symbol clashes (Cyberline* / cyberline* namespaces are
+# suite-unique). No submodule patches needed: no osdialog, no MIDI
+# driver, no direct glfw calls, no network.
+
+PLUGIN_FILES += $(filter-out cyberline/src/plugin.cpp,$(wildcard cyberline/src/*.cpp))
+
+# --------------------------------------------------------------
 # cf
 
 PLUGIN_FILES += $(filter-out cf/src/plugin.cpp,$(wildcard cf/src/*.cpp))
@@ -2478,6 +2490,12 @@ $(BUILD_DIR)/CatroModulo/src/%.cpp.o: CatroModulo/src/%.cpp
 	$(SILENT)$(CXX) $< $(BUILD_CXX_FLAGS) -c -o $@ \
 		$(foreach m,$(CATROMODULO_CUSTOM),$(call custom_module_names,$(m),CatroModulo)) \
 		-DpluginInstance=pluginInstance__CatroModulo
+
+$(BUILD_DIR)/cyberline/src/%.cpp.o: cyberline/src/%.cpp
+	-@mkdir -p "$(shell dirname $(BUILD_DIR)/$<)"
+	@echo "Compiling $<"
+	$(SILENT)$(CXX) $< $(BUILD_CXX_FLAGS) -c -o $@ \
+		-DpluginInstance=pluginInstance__cyberline
 
 $(BUILD_DIR)/cf/src/%.cpp.o: cf/src/%.cpp
 	-@mkdir -p "$(shell dirname $(BUILD_DIR)/$<)"

@@ -353,6 +353,9 @@ extern Model* modelTestVCF;
 // cf
 #include "cf/src/plugin.hpp"
 
+// cyberline
+#include "cyberline/src/plugin.hpp"
+
 // CVfunk
 #define modelNode modelCVfunkNode
 #define modelSteps modelCVfunkSteps
@@ -1041,6 +1044,7 @@ Plugin* pluginInstance__Biset;
 Plugin* pluginInstance__BogaudioModules;
 Plugin* pluginInstance__CatroModulo;
 Plugin* pluginInstance__cf;
+Plugin* pluginInstance__cyberline;
 Plugin* pluginInstance__ChowDSP;
 Plugin* pluginInstance__Computerscare;
 Plugin* pluginInstance__CVfunk;
@@ -2050,6 +2054,21 @@ static void initStatic__CatroModulo()
         p->addModel(modelCM8Module);
         p->addModel(modelCM9Module);
         p->addModel(modelCM10Module);
+    }
+}
+
+static void initStatic__cyberline()
+{
+    Plugin* const p = new Plugin;
+    pluginInstance__cyberline = p;
+
+    const StaticPluginLoader spl(p, "cyberline");
+    if (spl.ok())
+    {
+        p->addModel(cyberline::modelCyberlineLarynx);
+        p->addModel(cyberline::modelCyberlineLungs);
+        p->addModel(cyberline::modelCyberlineOralChamber);
+        p->addModel(cyberline::modelCyberlineVoice);
     }
 }
 
@@ -4291,6 +4310,7 @@ void initStaticPlugins()
     initStatic__BogaudioModules();
     initStatic__CatroModulo();
     initStatic__cf();
+    initStatic__cyberline();
     initStatic__ChowDSP();
     initStatic__Computerscare();
     initStatic__CVfunk();

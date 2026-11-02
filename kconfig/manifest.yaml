@@ -126,32 +126,9 @@ plugins/Computerscare:
   phone_home: null  # TODO
 
 # plugins/CountModula
-# Code: GPL-3.0-only (LICENSE.txt). LICENSE-DIST.txt carries embedded
-# third-party code exceptions (Befaco Slew: BSD-3-Clause, stoermelder
-# hotkey: GPL-3.0). Panels/logo: copyright, "may not be used in
-# derivative works" (README.md) — needs the same review as other
-# 'Custom' entries.
 plugins/CountModula:
   artwork_license: 'Custom'
-  phone_home: false
-
-# plugins/SignalFunctionSet
-# Code: GPL-3.0-or-later (plugin.json/LICENSE). No separate artwork
-# license found; vendored msfa (Apache-2.0) and miniz are code, not art.
-# fill.cpp downloads patterns from drum-patterns.com (network::request).
-plugins/SignalFunctionSet:
-  artwork_license: 'GPL-3.0-or-later'
-  phone_home: true
-
-# plugins/halfagiraf-modules
-# Code: GPL-3.0-or-later (plugin.json/LICENSE); vendored Mutable Instruments
-# Beads + stmlib are MIT-permission (LICENSE-Beads.txt). Artwork GPL-3.0-or-later
-# (same plugin.json license). No network access anywhere in src/. Upstream
-# compiles src/*.cpp except Palimpsest.cpp (unregistered dev code) plus the
-# header-only src/sonavyre/Sonavyre.cpp and vendored Beads sources.
-plugins/halfagiraf-modules:
-  artwork_license: 'GPL-3.0-or-later'
-  phone_home: false
+  phone_home: null  # TODO
 
 # plugins/DHE-Modules
 plugins/DHE-Modules:
@@ -216,21 +193,15 @@ plugins/HetrickCV:
   artwork_license: 'CC0-1.0'
   phone_home: null  # TODO
 
-# plugins/InfNoise (InfiniteNoise)
-# Code: GPL-3.0-or-later (LICENSE.md/plugin.json; vendored Dintree-derived
-# dsp code in inMath.hpp carries its own permissive header, see file).
-# Artwork: CC-BY-NC-4.0 (LICENSE.md — panels/logo by Infinite-Noise;
-# PolyPort.svg/-dark based on VCV's PJ301M, same NC license). The http
-# hits in src are license-header URLs and code-comment citations only,
-# no network:: calls; no osdialog, no MIDI driver usage.
-plugins/InfNoise:
-  artwork_license: 'CC-BY-NC-4.0'
-  phone_home: false
-
 # plugins/ImpromptuModular
 plugins/ImpromptuModular:
   artwork_license: 'CC-BY-NC-ND-4.0'
   # per-file artwork exceptions listed in docs/LICENSES.md: 1
+  phone_home: null  # TODO
+
+# plugins/InfNoise
+plugins/InfNoise:
+  artwork_license: null
   phone_home: null  # TODO
 
 # plugins/JW-Modules
@@ -299,6 +270,11 @@ plugins/MockbaModular:
   artwork_license: 'MIT'
   phone_home: null  # TODO
 
+# plugins/Moffenzeef
+plugins/Moffenzeef:
+  artwork_license: null
+  phone_home: null  # TODO
+
 # plugins/Mog
 plugins/Mog:
   artwork_license: 'CC0-1.0'
@@ -309,6 +285,11 @@ plugins/Mog:
 plugins/Orbits:
   artwork_license: 'CC-BY-NC-ND-4.0'
   # per-file artwork exceptions listed in docs/LICENSES.md: 1
+  phone_home: null  # TODO
+
+# plugins/PatchableDevices
+plugins/PatchableDevices:
+  artwork_license: null
   phone_home: null  # TODO
 
 # plugins/PathSet
@@ -341,6 +322,11 @@ plugins/RebelTech:
 # plugins/Sapphire
 plugins/Sapphire:
   artwork_license: 'GPL-3.0-or-later'
+  phone_home: null  # TODO
+
+# plugins/SignalFunctionSet
+plugins/SignalFunctionSet:
+  artwork_license: null
   phone_home: null  # TODO
 
 # plugins/StarlingVia
@@ -397,6 +383,15 @@ plugins/cf:
   # per-file artwork exceptions listed in docs/LICENSES.md: 3
   phone_home: null  # TODO
 
+# plugins/cyberline
+# Code: MIT (LICENSE/plugin.json). Artwork: MIT — programmatic NanoVG
+# panels, no SVG/image assets (artwork_license follows code). phone_home:
+# verified false — no network::/curl/socket usage in src (grepped); no
+# osdialog, no MIDI driver, no glfw.
+plugins/cyberline:
+  artwork_license: 'MIT'
+  phone_home: false
+
 # plugins/dBiz
 plugins/dBiz:
   artwork_license: 'CC-BY-NC-ND-4.0'
@@ -404,15 +399,9 @@ plugins/dBiz:
   phone_home: null  # TODO
 
 # plugins/dbRackCsound
-# Code: GPL-3.0-or-later (plugin.json/LICENSE). Artwork: same license
-# (plugin.json license covers the whole plugin; SVG panels + font under
-# res/). No network access in the plugin's src/ (grep: no curl/http/
-# sockets; DBCSound.hpp's INFO() is Rack's logger). The vendored Csound
-# static archive itself references libcurl (corfiles.c.o), but that is a
-# build-time library link, not module-initiated online access.
 plugins/dbRackCsound:
-  artwork_license: 'GPL-3.0-or-later'
-  phone_home: false
+  artwork_license: null
+  phone_home: null  # TODO
 
 # plugins/eightfold
 plugins/eightfold:
@@ -420,34 +409,18 @@ plugins/eightfold:
   phone_home: null  # TODO
 
 # plugins/forsitan-modulare
-# Code: GPL-3.0-or-later (plugin.json/LICENSE). Artwork GPL-3.0-or-later
-# (same plugin.json license, panels under img/ + res/). No network access
-# in src/ (v2.17.0 c642f12; kits folder picking is local-only).
 plugins/forsitan-modulare:
   artwork_license: 'GPL-3.0-or-later'
-  phone_home: false
-
-# plugins/Moffenzeef
-# Code: GPL-3.0+ (plugin.json/LICENSE, GPLv3). Artwork: same license
-# (plugin.json license field; panels under res/panels). stb_vorbis is
-# public-domain/MIT-permission code, not artwork. No network access in
-# src/ (grep: no network::, curl, http; stb_vorbis is a local file decoder).
-plugins/Moffenzeef:
-  artwork_license: 'GPL-3.0+'
-  phone_home: false
-
-# plugins/PatchableDevices
-# Code: GPL-3.0-or-later (plugin.json/LICENSE). Artwork GPL-3.0-or-later
-# (same plugin.json license; SVG panels under modules/). The "network"
-# grep hits in DualIntegrator/panel_schema are license-header URLs only,
-# no network:: calls. No MIDI driver usage.
-plugins/PatchableDevices:
-  artwork_license: 'GPL-3.0-or-later'
-  phone_home: false
+  phone_home: null  # TODO
 
 # plugins/h4n4-modules
 plugins/h4n4-modules:
   artwork_license: 'GPL-3.0-or-later'
+  phone_home: null  # TODO
+
+# plugins/halfagiraf-modules
+plugins/halfagiraf-modules:
+  artwork_license: null
   phone_home: null  # TODO
 
 # plugins/ihtsyn

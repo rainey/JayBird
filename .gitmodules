@@ -287,3 +287,6 @@
 [submodule "plugins/dbRackCsound"]
 	path = plugins/dbRackCsound
 	url = https://github.com/docb/dbRackCsound.git
+[submodule "plugins/cyberline"]
+	path = plugins/cyberline
+	url = /storage/69/vcvprojects/cyberline

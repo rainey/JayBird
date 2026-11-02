@@ -3433,11 +3433,10 @@ config MOD_IMPROMPTUMODULAR_BLANK_PANEL
 endif
 endmenu
 menu "InfNoise (InfNoise)"
-	comment "code: GPL-3.0-or-later  artwork: CC-BY-NC-4.0"
+	comment "code: GPL-3.0-or-later  artwork: unlisted"
 config PLUG_INFNOISE
 	bool "InfNoise"
 	default y
-	depends on ALLOW_NC_ARTWORK
 if PLUG_INFNOISE
 config MOD_INFNOISE_ADRENVELOPE
 	bool "ADR Envelope"
@@ -4671,7 +4670,7 @@ config MOD_MOCKBAMODULAR_PSELECTAH
 endif
 endmenu
 menu "Moffenzeef (Moffenzeef)"
-	comment "code: GPL-3.0-only  artwork: GPL-3.0+"
+	comment "code: GPL-3.0-only  artwork: unlisted"
 config PLUG_MOFFENZEEF
 	bool "Moffenzeef"
 	default y
@@ -4817,7 +4816,7 @@ config MOD_ORBITS_RAREBREEDS_ORBITS_POLYGENE
 endif
 endmenu
 menu "PatchableDevices (PatchableDevices)"
-	comment "code: GPL-3.0-or-later  artwork: GPL-3.0-or-later"
+	comment "code: GPL-3.0-or-later  artwork: unlisted"
 config PLUG_PATCHABLEDEVICES
 	bool "PatchableDevices"
 	default y
@@ -5094,11 +5093,10 @@ config MOD_SAPPHIRE_ZOO
 endif
 endmenu
 menu "SignalFunctionSet (SignalFunctionSet)"
-	comment "code: GPL-3.0-or-later  artwork: GPL-3.0-or-later"
+	comment "code: GPL-3.0-or-later  artwork: unlisted"
 config PLUG_SIGNALFUNCTIONSET
 	bool "SignalFunctionSet"
 	default y
-	depends on !STRICT_NO_PHONE_HOME
 if PLUG_SIGNALFUNCTIONSET
 config MOD_SIGNALFUNCTIONSET_DRIFT
 	bool "Drift"
@@ -6019,6 +6017,30 @@ config MOD_CF_DAVE
 	depends on PLUG_CF
 endif
 endmenu
+menu "cyberline (cyberline)"
+	comment "code: MIT  artwork: MIT"
+config PLUG_CYBERLINE
+	bool "cyberline"
+	default y
+if PLUG_CYBERLINE
+config MOD_CYBERLINE_CYBERLINE_LARYNX
+	bool "Larynx"
+	default PLUG_CYBERLINE
+	depends on PLUG_CYBERLINE
+config MOD_CYBERLINE_CYBERLINE_LUNGS
+	bool "Breath"
+	default PLUG_CYBERLINE
+	depends on PLUG_CYBERLINE
+config MOD_CYBERLINE_CYBERLINE_ORAL_CHAMBER
+	bool "Oral Chamber"
+	default PLUG_CYBERLINE
+	depends on PLUG_CYBERLINE
+config MOD_CYBERLINE_CYBERLINE_VOICE
+	bool "Voice"
+	default PLUG_CYBERLINE
+	depends on PLUG_CYBERLINE
+endif
+endmenu
 menu "dBiz (dBiz)"
 	comment "code: BSD-3-Clause  artwork: CC-BY-NC-ND-4.0"
 config PLUG_DBIZ
@@ -6157,7 +6179,7 @@ config MOD_DBIZ_DUALMATRIX
 endif
 endmenu
 menu "dbRackCsound (dbRackCsound)"
-	comment "code: GPL-3.0-or-later  artwork: GPL-3.0-or-later"
+	comment "code: GPL-3.0-or-later  artwork: unlisted"
 config PLUG_DBRACKCSOUND
 	bool "dbRackCsound"
 	default y
@@ -6393,7 +6415,7 @@ config MOD_H4N4_MODULES_XEN_QNT
 endif
 endmenu
 menu "halfagiraf-modules (halfagiraf-modules)"
-	comment "code: GPL-3.0-or-later  artwork: GPL-3.0-or-later"
+	comment "code: GPL-3.0-or-later  artwork: unlisted"
 config PLUG_HALFAGIRAF_MODULES
 	bool "halfagiraf-modules"
 	default y
