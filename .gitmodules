@@ -289,4 +289,4 @@
 	url = https://github.com/docb/dbRackCsound.git
 [submodule "plugins/cyberline"]
 	path = plugins/cyberline
-	url = /storage/69/vcvprojects/cyberline
+	url = https://github.com/rainey/CyberLineVCV.git
