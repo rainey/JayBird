@@ -49,6 +49,14 @@ nix-update-rev:
 	git rev-parse HEAD > nix/source-rev
 	@echo "nix/source-rev updated — commit it, then: nix build .#jaybird"
 
+# Machine-local fetch accelerator (NOT committed — absolute local paths):
+# redirects every submodule's network URL to its local checkout so
+# builtins.fetchGit { submodules = true; } does not re-download the whole
+# submodule graph (Carla/JUCE/PawPaw...) from the network on every new rev.
+# Use: GIT_CONFIG_GLOBAL=$(pwd)/.nix-gitconfig nix build .#<profile>
+nix-gitconfig:
+	python3 utils/jaybird/nix-gitconfig.py
+
 
 # ---------------------------------------------------------------------------------------------------------------------
 # Carla config

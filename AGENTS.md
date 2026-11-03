@@ -405,6 +405,7 @@ python3 utils/jaybird/gen_manifest.py                            # draft manifes
 python3 utils/jaybird/buildability.py [--filter X] [--drilldown] [--restore]
 ./utils/jaybird/linkcheck.py [--archive plugins/plugins-mini.a]   # symbol audit
 ./utils/jaybird/audit-submodule-pins.sh                          # pins vs patches
+make nix-gitconfig                                               # local fetch accelerator
 make -f patches/submodule-patches.mk submodule-{patches,unpatch,status}
 make -C plugins plugins.a                                        # quick archive build
 nix build .#jaybird --cores 2                                    # full build incl. link
@@ -412,6 +413,26 @@ nix build .#full-ccache --cores 2 \
   --option extra-sandbox-paths /var/tmp/jaybird-ccache           # ccache-backed build
 nix flake show                                                   # sanity-check the flake
 ```
+
+### Slow/hanging flake evaluation (submodule fetch storm)
+
+`builtins.fetchGit { submodules = true; }` on a fresh rev cold-fetches the
+whole submodule graph serially from network remotes (each `git ls-remote`
+is a child of nix; Carla pulls in JUCE/PawPaw/etc.). On a high-latency
+link this looks like a multi-hour stall — watch for repeated
+`git ls-remote https://github.com/...` children of the nix process.
+Fix without committing anything machine-specific:
+
+```sh
+make nix-gitconfig   # writes .nix-gitconfig (gitignored; absolute local paths)
+GIT_CONFIG_GLOBAL=$PWD/.nix-gitconfig nix build .#<profile> ...
+```
+
+Each submodule URL is rewritten to `file://<local checkout>` via
+insteadOf; pins missing locally fall through to the network remote, so
+the config is always safe. A cold fetch drops from hours to ~40 s; warm
+fetches hit nix's fetch cache and are instant. Run
+`git submodule update --init` once after clone so all pins exist locally.
 
 ## nix build caching (why rebuilds are full rebuilds, and the ccache path)
 

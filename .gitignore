@@ -30,6 +30,8 @@ plugins/plugins-jaybird.cpp
 plugins/plugins-jaybird.mk
 kconfig/gen/
 __pycache__/
+# machine-local submodule fetch accelerator (make nix-gitconfig)
+.nix-gitconfig
 result*
 dist/
 dist
