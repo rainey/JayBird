@@ -57,6 +57,19 @@ nix-update-rev:
 nix-gitconfig:
 	python3 utils/jaybird/nix-gitconfig.py
 
+# nix wrapper that always uses the local-fetch accelerator (avoids the
+# git-submodule network storm on fresh revs). Regenerates .nix-gitconfig
+# if missing. Extra args pass through, e.g.:
+#   make nix ARGS="build .#full-ccache-gl-host --cores 2 \
+#     --option extra-sandbox-paths /var/tmp/jaybird-ccache"
+#   make nix ARGS="run .#menuconfig"
+GITCFG := $(abspath .nix-gitconfig)
+
+.PHONY: nix
+nix:
+	@test -f "$(GITCFG)" || $(MAKE) nix-gitconfig
+	GIT_CONFIG_GLOBAL="$(GITCFG)" nix $(ARGS)
+
 
 # ---------------------------------------------------------------------------------------------------------------------
 # Carla config

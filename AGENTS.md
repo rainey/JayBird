@@ -434,6 +434,11 @@ the config is always safe. A cold fetch drops from hours to ~40 s; warm
 fetches hit nix's fetch cache and are instant. Run
 `git submodule update --init` once after clone so all pins exist locally.
 
+`make nix ARGS="build .#<profile> ..."` wraps nix with the accelerator
+pre-set (regenerating .nix-gitconfig on demand). Do NOT export
+GIT_CONFIG_GLOBAL in your shell profile — the insteadOf rewrites would
+then also hijack your own interactive git pushes/fetches to GitHub.
+
 ## nix build caching (why rebuilds are full rebuilds, and the ccache path)
 
 nix caches whole-derivation *outputs*, never partial build artifacts: any
