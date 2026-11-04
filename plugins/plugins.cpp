@@ -2069,6 +2069,7 @@ static void initStatic__cyberline()
         p->addModel(cyberline::modelCyberlineLungs);
         p->addModel(cyberline::modelCyberlineOralChamber);
         p->addModel(cyberline::modelCyberlineVoice);
+        p->addModel(cyberline::modelCyberlineHeart);
     }
 }
 

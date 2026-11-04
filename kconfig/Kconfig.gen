@@ -6039,6 +6039,10 @@ config MOD_CYBERLINE_CYBERLINE_VOICE
 	bool "Voice"
 	default PLUG_CYBERLINE
 	depends on PLUG_CYBERLINE
+config MOD_CYBERLINE_CYBERLINE_HEART
+	bool "Heart"
+	default PLUG_CYBERLINE
+	depends on PLUG_CYBERLINE
 endif
 endmenu
 menu "dBiz (dBiz)"
