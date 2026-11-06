@@ -32,9 +32,14 @@ lives in `utils/jaybird/` (`gen.py`, `gen_manifest.py`, `licensing.py`,
 2. **`plugins/plugins-jaybird.cpp` and `kconfig/Kconfig.gen` are generated**
    by `python3 utils/jaybird/gen.py` — never hand-edit them. Hand-edit
    `plugins/plugins.cpp` only where gen.py mirrors it, or gen.py itself.
-3. **`nix/source-rev` must always point at the current HEAD commit** before
-   a nix build. `make nix-update-rev` writes it; commit it together with
-   the change it pins (amend if you forgot).
+3. **Commit before building.** The flake pins its source to `self.rev`
+   (the commit the flake is evaluated from) and fetches it from the
+   canonical GitHub URL; a dirty tree aborts loudly rather than silently
+   building stale source (the old `nix/source-rev` amend dance is gone).
+   Untracked files are fine; modified tracked files and moved submodule
+   pins are not. `make nix ARGS="build .#<profile> ..."` routes the
+   fetch through the local checkout (`.nix-gitconfig`), so unpushed
+   commits build locally.
 4. **Never run top-level `make clean`** — it wipes `deps/` and `dpf/`.
    Only `make clean -C plugins` (keeps `src/Rack/dep` intact).
 5. **Patch application uses plain `patch(1)`, not `git apply`** — the nix
@@ -227,12 +232,12 @@ mysterious undefined symbols from the stale ones.
 ```sh
 git add plugins/<Name> plugins/Makefile plugins/plugins.cpp patches/<Name> ...
 git commit
-make nix-update-rev && git add nix/source-rev && git commit --amend --no-edit
 ```
 
-The rev pin must be written **after** the commit it pins (so it contains
-that commit's hash), hence the amend. Running `make nix-update-rev` before
-the commit pins a stale tree and the nix build fetches the wrong source.
+The flake builds the committed HEAD via `self.rev` — commit, then build.
+No pin file exists anymore; the old `nix/source-rev` amend dance is
+removed, and a dirty tree aborts the build with a clear message instead
+of silently building stale source.
 
 (Dirty `plugins/surgext` and `src/Rack` submodules are pre-existing; leave
 them unstaged.) Then rebuild the affected flake outputs:

@@ -45,10 +45,6 @@ menuconfig:
 	python3 kconfig/menuconfig.py Kconfig
 
 # Pin the nix flake source to HEAD (run after committing; commit the result).
-nix-update-rev:
-	git rev-parse HEAD > nix/source-rev
-	@echo "nix/source-rev updated — commit it, then: nix build .#jaybird"
-
 # Machine-local fetch accelerator (NOT committed — absolute local paths):
 # redirects every submodule's network URL to its local checkout so
 # builtins.fetchGit { submodules = true; } does not re-download the whole

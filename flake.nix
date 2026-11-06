@@ -34,16 +34,30 @@
         pkgs: args:
         pkgs.callPackage ./nix/package.nix args;
 
-      # Source with submodules, pinned by the rev in nix/source-rev
-      # (written by `make nix-update-rev`; pure-eval requires a rev).
+      # Source with submodules, pinned to the rev the flake is evaluated
+      # from (self.rev) — no pin file, no amend dance. The URL is the
+      # canonical published location, so consuming
+      # `github:rainey/JayBird/<rev>` fetches its own source from GitHub.
+      # Local builds go through `make nix` (GIT_CONFIG_GLOBAL
+      # .nix-gitconfig), whose insteadOf rewrites the same URL to the
+      # local checkout — unpushed commits build locally with no
+      # committed machine-specific path anywhere.
+      #
+      # A dirty tree has no self.rev; refuse rather than silently
+      # building stale source (the old nix/source-rev amend trap).
+      # Untracked files are fine (the flake filter excludes them);
+      # modified tracked files and moved submodule pins are not.
       self-src = forAllSystems (
         _:
-        builtins.fetchGit {
-          url = "file:///storage/69/vcvprojects/JayBird";
-          submodules = true;
-          allRefs = true;
-          rev = lib.removeSuffix "\n" (builtins.readFile ./nix/source-rev);
-        }
+        if self ? dirtyRev then
+          abort "jaybird: source tree has uncommitted changes (${self.dirtyRev}); commit them before building"
+        else
+          builtins.fetchGit {
+            url = "https://github.com/rainey/JayBird";
+            submodules = true;
+            allRefs = true;
+            rev = self.rev or abort "jaybird: cannot determine the source rev (clean tree, but no self.rev); build via: make nix ARGS=\"build .#<profile> ...\"";
+          }
       );
 
       # Rack dep sources that are gitignored upstream (downloaded at build

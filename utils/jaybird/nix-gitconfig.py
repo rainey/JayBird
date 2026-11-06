@@ -62,6 +62,21 @@ def main():
     walk(REPO, subs)
 
     lines, seen = [], set()
+
+    # The flake fetches its own source from the canonical GitHub URL;
+    # rewrite that too so local builds (incl. unpushed commits) clone
+    # from this checkout instead of the remote.
+    origin = subprocess.run(
+        ["git", "-C", REPO, "config", "--get", "remote.origin.url"],
+        capture_output=True, text=True,
+    ).stdout.strip()
+    if origin and not origin.startswith("file://"):
+        seen.add(origin)
+        local = f"file://{REPO}"
+        lines.append(f'[url "{local}"]\n\tinsteadOf = {origin}\n')
+        if origin.endswith(".git"):
+            lines.append(f'[url "{local}"]\n\tinsteadOf = {origin[:-4]}\n')
+
     for sub in sorted(set(subs)):
         out = subprocess.run(
             ["git", "-C", sub, "config", "--get-regexp", r"remote\..*\.url"],
