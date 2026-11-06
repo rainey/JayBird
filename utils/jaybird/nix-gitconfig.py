@@ -71,11 +71,23 @@ def main():
         capture_output=True, text=True,
     ).stdout.strip()
     if origin and not origin.startswith("file://"):
-        seen.add(origin)
         local = f"file://{REPO}"
-        lines.append(f'[url "{local}"]\n\tinsteadOf = {origin}\n')
+        # Map every common spelling of the origin so the flake's
+        # canonical https URL (and any ssh/remote forms) all resolve
+        # locally: git@host:OWNER/REPO.git -> https://host/OWNER/REPO...
+        forms = {origin}
+        m = re.match(r"git@([^:]+):(.+?)(?:\.git)?$", origin)
+        if m:
+            base = f"https://{m.group(1)}/{m.group(2)}"
+            forms.add(base)
+            forms.add(base + ".git")
         if origin.endswith(".git"):
-            lines.append(f'[url "{local}"]\n\tinsteadOf = {origin[:-4]}\n')
+            forms.add(origin[:-4])
+        for url in forms:
+            if url in seen:
+                continue
+            seen.add(url)
+            lines.append(f'[url "{local}"]\n\tinsteadOf = {url}\n')
 
     for sub in sorted(set(subs)):
         out = subprocess.run(
