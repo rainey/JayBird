@@ -51,13 +51,15 @@
         _:
         if self ? dirtyRev then
           abort "jaybird: source tree has uncommitted changes (${self.dirtyRev}); commit them before building"
-        else
+        else if self ? rev then
           builtins.fetchGit {
             url = "https://github.com/rainey/JayBird";
             submodules = true;
             allRefs = true;
-            rev = self.rev or abort "jaybird: cannot determine the source rev (clean tree, but no self.rev); build via: make nix ARGS=\"build .#<profile> ...\"";
+            rev = self.rev;
           }
+        else
+          abort "jaybird: cannot determine the source rev (clean tree, but no self.rev); build via: make nix ARGS=\"build .#<profile> ...\""
       );
 
       # Rack dep sources that are gitignored upstream (downloaded at build
