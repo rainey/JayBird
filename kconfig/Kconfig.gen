@@ -6047,6 +6047,10 @@ config MOD_CYBERLINE_CYBERLINE_BROCA
 	bool "Broca"
 	default PLUG_CYBERLINE
 	depends on PLUG_CYBERLINE
+config MOD_CYBERLINE_CYBERLINE_BROCA_SQ
+	bool "Broca²"
+	default PLUG_CYBERLINE
+	depends on PLUG_CYBERLINE
 endif
 endmenu
 menu "dBiz (dBiz)"
