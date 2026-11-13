@@ -2073,6 +2073,7 @@ static void initStatic__cyberline()
         p->addModel(cyberline::modelCyberlineBroca);
         p->addModel(cyberline::modelCyberlineBrocaSq);
         p->addModel(cyberline::modelCyberlinePtBreakout);
+        p->addModel(cyberline::modelCyberlineCantor);
     }
 }
 
